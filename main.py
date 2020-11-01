@@ -39,69 +39,6 @@ def rede(x):
         print("z: ",z)
         z=fun_g(z)
 
-def rede2(x):
-#    for i in range(len(neunos_por_camada)):
-#        camada_atual=[]
-#        for j in range(neunos_por_camada[i]):
-#            camada_atual.append()
-
-#np.transpone(A)
-    a=[]
-    z=[]
-    z.append(np.matrix([1.0, x]))
-
-    i=0
-    print("entrada x: ",x)
-    a.append(np.matrix([1.0, x]))#resultado das entradas
-    print("a: ",a)
-    z.append(a[-1]*np.transpose(theta[i]))
-    print("z: ",z)
-    z[-1]=fun_g(z[-1])
-    a.append(np.matrix([1.0]))
-    a[-1]=np.concatenate((a[-1],z[-1]), axis=1)
-    print("a: ",a)
-    
-    i=1
-    z[-1]=a[-1]*np.transpose(theta[i])
-    print("z: ",z)
-    z[-1]=fun_g(z[-1])
-    a.append(np.matrix([1.0]))
-    a[-1]=np.concatenate((a[-1],z[-1]), axis=1)
-    print("a: ",a)
-
-    i=2
-    f=a[-1]
-    print("saida f: ",f)
-
-def rede_rustica(x):
-#    for i in range(len(neunos_por_camada)):
-#        camada_atual=[]
-#        for j in range(neunos_por_camada[i]):
-#            camada_atual.append()
-
-#np.transpone(A)
-
-    print("entrada x: ",x)
-    a1=np.matrix([1.0, x])#resultado das entradas
-    print("a1: ",a1)
-    z2=a1*np.transpose(theta1)
-    print("z2: ",z2)
-    z2=fun_g(z2)
-    a2=np.matrix([1.0])
-    a2=np.concatenate((a2,z2), axis=1)
-    print("a2: ",a2)
-    
-    z3=a2*np.transpose(theta2)
-    print("z3: ",z3)
-    z3=fun_g(z3)
-    a3=np.matrix([1.0])
-    a3=np.concatenate((a3,z3), axis=1)
-    print("a3: ",a3)
-
-    f=a3
-    print("saida f: ",f)
-
-
 def main():
     #usando exemplo_backprop_rede1.txt
     delta=[]
