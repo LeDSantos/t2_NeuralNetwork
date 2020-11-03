@@ -17,6 +17,7 @@ theta.append(theta1)
 theta.append(theta2)
 treino=	np.matrix([[0.13000, 0.90000], [0.42000, 0.23000]])
 #treino x->y
+a_list=[]
 
 #função sigmoide
 def fun_g(x):
@@ -29,27 +30,55 @@ def rede(x):
     for i in range(len(neunos_por_camada)):
         a=np.matrix([1.0])#termo de bias
         a=np.concatenate((a,z), axis=1)
+        a_list.append(a)
         print("a: ",a)
         if i==len(neunos_por_camada)-1:
             print("ACABOU")
             f=a[0,1]
+            a_list[-1]=np.matrix(f)
             print("saida f: ",f)
             return f
         z=a*np.transpose(theta[i])#calcula saidas da camada
         print("z: ",z)
         z=fun_g(z)
 
+def mult_elemento_mat(a,b):
+    resul=a
+    for i in range(len(a)):
+        for j in range(len(a[0])):
+            resul[i,j]=a[i,j]*b[i,j]
+    return resul
+
 def main():
     #usando exemplo_backprop_rede1.txt
     delta=[]
-    delta.append(rede(treino[0,0])-treino[0,1])
+    delta.append(rede(treino[1,0])-treino[1,1])
     print("delta da ultima camada= ", delta)
+    print(a_list)
+    for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
+        print("AQUI",i)
+        print(theta[i])
+        print(delta[0])
+        x=((theta[i])*delta[0])
+        print(x)
+        #ele_por_ele=mult_elemento_mat(a_list[i],1-a_list[i])
+        #print(ele_por_ele)
+        x=mult_elemento_mat((x),(a_list[i]))
+        #print(a_list[i])
+        #print(1-a_list[i])
+        #return
+        x=mult_elemento_mat(x,1-a_list[i])
+        print(x)
+        
+        x=np.delete(x, 0, 1)#deleta a primeira(0) coluna(1)
+        print(x)
+        delta.insert(0,x)
     
-    #delta_camada=[]
-    #for i in range(neunos_por_camada[1]):
+    delta.insert(0,x)
+    print(delta)
 
-    #delta.insert(0,)#,theta[-1]*delta[0+1])
-
+    #D é o gradiente
+    
     return
 
 if __name__ == "__main__":
