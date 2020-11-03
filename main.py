@@ -56,17 +56,14 @@ def main():
     print("delta da ultima camada= ", delta)
     print(a_list)
     for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
-        print("AQUI",i)
+        print("camada ",i)
         print(theta[i])
         print(delta[0])
+
         x=((theta[i])*delta[0])
         print(x)
-        #ele_por_ele=mult_elemento_mat(a_list[i],1-a_list[i])
-        #print(ele_por_ele)
+
         x=mult_elemento_mat((x),(a_list[i]))
-        #print(a_list[i])
-        #print(1-a_list[i])
-        #return
         x=mult_elemento_mat(x,1-a_list[i])
         print(x)
         
