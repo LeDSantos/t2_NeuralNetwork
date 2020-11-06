@@ -50,6 +50,7 @@ def rede(x):
 def main():
     #usando exemplo_backprop_rede1.txt
     #utiliza 2 exemplos
+    alfa=0.01#####ULTIMA LINHA DO ALG, NÃO SEI O MELHOR VALOR
     for n_exemplo in range(len(treino)):
         print("\n\n---------------------\nEXEMPLO ",n_exemplo)
         a_list, previsao = rede(treino[n_exemplo,0])
@@ -93,6 +94,10 @@ def main():
         D[i]=(D[i]+P)/n
         print(D[i])
 
+    for i in range(len(neunos_por_camada)-2,-1,-1):#atualiza pesos penultima camada até a primeira
+        theta[i]=theta[i]-alfa*D[i]
+
+    print("Pessos/thetas atualizados\n",theta)
 
     return
 
