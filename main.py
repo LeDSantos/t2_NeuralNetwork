@@ -10,23 +10,20 @@ import time
 reg_lambda=0.000
 neunos_por_camada=[1, 2, 1]
 #já considera os termos de bias
-theta=[]
+theta_original=[]
 theta1=np.matrix([[0.40000 , 0.10000  ], [0.30000 , 0.20000 ]])
 theta2=np.matrix([0.70000,  0.50000,  0.60000 ])
-theta.append(theta1)
-theta.append(theta2)
-treino=	np.matrix([[0.13000, 0.90000], [0.42000, 0.23000]])
+theta_original.append(theta1)
+theta_original.append(theta2)
+treino_original=	np.matrix([[0.13000, 0.90000], [0.42000, 0.23000]])
 #treino x->y
-#a_list=[]
-D=[]
-D.append(np.matrix([[0, 0], [0,0]]))#gradiente 1 inicial
-D.append(np.matrix([[0, 0,0]]))  
 
 #função sigmoide
 def fun_g(x):
     return 1.0/(1.0+np.exp(-x))
 
-def rede(x):
+#calcula a previsao da rede
+def rede(x, theta, num_camadas):
     #variaveis locais a, z e a_list
     a_list=[]
     print("entrada x: ",x)
@@ -35,31 +32,28 @@ def rede(x):
         a=np.matrix([1.0])#termo de bias
         a=np.concatenate((a,z), axis=1)
         a_list.append(a)
-        print("a: ",a)
-        if i==len(neunos_por_camada)-1:
-            print("ACABOU")
-            f=a[0,1]
-            #a_list[-1]=np.matrix(f)
-            print("saida f: ",f)
-            return a_list, f
+        print("a",i,": ",a)
+        if i==num_camadas-1:
+            print("-> Saida f: ", a[0,1])
+            return a_list
         z=a*np.transpose(theta[i])#calcula saidas da camada
-        print("z: ",z)
+        print("z",i,": ",z)
         z=fun_g(z)
 
+#chama rede e propaga o erro encontrado quando a previsao é comparada com o valor esperado
+def backpropagation(treino, num_camadas, theta, alfa):
+    D=[]
+    for i in range(num_camadas-1):
+        D.append(np.matrix([0]))#gradiente inicial
 
-def main():
-    #usando exemplo_backprop_rede1.txt
-    #utiliza 2 exemplos
-    alfa=0.01#####ULTIMA LINHA DO ALG, NÃO SEI O MELHOR VALOR
-    for n_exemplo in range(len(treino)):
-        print("\n\n---------------------\nEXEMPLO ",n_exemplo)
-        a_list, previsao = rede(treino[n_exemplo,0])
-        erro=previsao-treino[n_exemplo,1]
+    for n_exemplo in range(len(treino)):#depois dá de mudar isso
+        print("\n---------------------\nEXEMPLO ",n_exemplo)
+        a_list= rede(treino[n_exemplo,0], theta, num_camadas)
+        erro=a_list[-1][0,1]-treino[n_exemplo,1]# previsto - esperado
         delta=[]
         delta.append(np.matrix([erro]))
-        print("delta da ultima camada= ", delta)
-        #print(a_list)
-        print("deltas")
+        print("-> Delta da ultima camada= ", delta,"\n")
+        print("-> Deltas")
         for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
             print("camada ",i)
             x=(np.transpose(theta[i])*delta[0])
@@ -71,25 +65,18 @@ def main():
             delta.insert(0,x)
         
         delta.insert(0,x)#duplica ultimo só pra ficar alinhado
-        #print(delta)
         
-        print("calculando D")
+        print("\n-> Calculando D")
         for i in range(len(neunos_por_camada)-2,-1,-1):#D da penultima camada até a primeira
             print("camada ",i)
-            teste=np.transpose(delta[i+1])*(a_list[i])
-            #print(teste)
-            D[i]=D[i]+teste
+            D[i]=D[i]+np.transpose(delta[i+1])*(a_list[i])
             print(D[i])
 
-    #return
-    print("\nDADOS DE TREINO PROCESSADOS\n-----------------\ncalculando D regularizado")
+    print("\nDADOS DE TREINO PROCESSADOS\n-----------------\n\n-> Calculando D regularizado")
     for i in range(len(neunos_por_camada)-2,-1,-1):#D da penultima camada até a primeira, regularizando
         print("camada ",i)
-        theta_sem_bias=np.zeros([len(D[i]),1])
-        theta_sem_bias=np.concatenate((theta_sem_bias,np.delete(theta[i], 0, 1)), axis=1)
-        #print(theta_sem_bias)
+        theta_sem_bias=np.concatenate((np.zeros([len(D[i]),1]),np.delete(theta[i], 0, 1)), axis=1)
         P=reg_lambda*theta_sem_bias
-        #print(P)
         n=len(treino)
         D[i]=(D[i]+P)/n
         print(D[i])
@@ -97,7 +84,22 @@ def main():
     for i in range(len(neunos_por_camada)-2,-1,-1):#atualiza pesos penultima camada até a primeira
         theta[i]=theta[i]-alfa*D[i]
 
-    print("Pessos/thetas atualizados\n",theta)
+    print("\n-> Pesos/thetas atualizados\n",theta)
+
+    return theta#atualizado
+
+
+def main():
+    #usando exemplo_backprop_rede1.txt
+    #utiliza 2 exemplos
+    alfa=0.01#####ULTIMA LINHA DO ALG BACK, NÃO SEI O MELHOR VALOR
+    
+    print("-> Informações iniciais:")
+    print("Neuronios em cada camada: ",neunos_por_camada)
+    print("Theta inicial:\n",theta_original)
+    print("Conjunto de treino:\n", treino_original)
+
+    theta_atualizado=backpropagation(treino_original, len(neunos_por_camada), theta_original, alfa)
 
     return
 
