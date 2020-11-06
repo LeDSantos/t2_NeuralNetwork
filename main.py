@@ -35,44 +35,34 @@ def rede(x):
         if i==len(neunos_por_camada)-1:
             print("ACABOU")
             f=a[0,1]
-            a_list[-1]=np.matrix(f)
+            #a_list[-1]=np.matrix(f)
             print("saida f: ",f)
             return f
         z=a*np.transpose(theta[i])#calcula saidas da camada
         print("z: ",z)
         z=fun_g(z)
 
-def mult_elemento_mat(a,b):
-    resul=a
-    for i in range(len(a)):
-        for j in range(len(a[0])):
-            resul[i,j]=a[i,j]*b[i,j]
-    return resul
 
 def main():
     #usando exemplo_backprop_rede1.txt
     delta=[]
     #utiliza o primeiro exemplo
-    delta.append(rede(treino[0,0])-treino[0,1])
+    erro=rede(treino[0,0])-treino[0,1]
+    delta.append(np.matrix([erro]))
     print("delta da ultima camada= ", delta)
     print(a_list)
     for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
         print("camada ",i)
-        print(theta[i])
-        print(delta[0])
-
-        x=((theta[i])*delta[0])
-        print(x)
-
-        x=mult_elemento_mat((x),(a_list[i]))
-        x=mult_elemento_mat(x,1-a_list[i])
-        print(x)
-        
+        x=(np.transpose(theta[i])*delta[0])
+        a_mod=np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())
+        x=np.array(np.transpose(x))*np.array(a_mod.tolist())
+        x=np.matrix(x)
         x=np.delete(x, 0, 1)#deleta a primeira(0) coluna(1)
         print(x)
         delta.insert(0,x)
     
-    delta.insert(0,x)
+    delta.insert(0,x)#duplica ultimo só pra ficar alinhado
+    print("deltas")
     print(delta)
 
     #D é o gradiente
