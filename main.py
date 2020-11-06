@@ -17,14 +17,18 @@ theta.append(theta1)
 theta.append(theta2)
 treino=	np.matrix([[0.13000, 0.90000], [0.42000, 0.23000]])
 #treino x->y
-a_list=[]
+#a_list=[]
+D=[]
+D.append(np.matrix([[0, 0], [0,0]]))#gradiente 1 inicial
+D.append(np.matrix([[0, 0,0]]))  
 
 #função sigmoide
 def fun_g(x):
     return 1.0/(1.0+np.exp(-x))
 
 def rede(x):
-    #variaveis locais a, z
+    #variaveis locais a, z e a_list
+    a_list=[]
     print("entrada x: ",x)
     z=np.matrix(x)#insere valor de entrada
     for i in range(len(neunos_por_camada)):
@@ -37,7 +41,7 @@ def rede(x):
             f=a[0,1]
             #a_list[-1]=np.matrix(f)
             print("saida f: ",f)
-            return f
+            return a_list, f
         z=a*np.transpose(theta[i])#calcula saidas da camada
         print("z: ",z)
         z=fun_g(z)
@@ -45,28 +49,51 @@ def rede(x):
 
 def main():
     #usando exemplo_backprop_rede1.txt
-    delta=[]
-    #utiliza o primeiro exemplo
-    erro=rede(treino[0,0])-treino[0,1]
-    delta.append(np.matrix([erro]))
-    print("delta da ultima camada= ", delta)
-    print(a_list)
-    for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
-        print("camada ",i)
-        x=(np.transpose(theta[i])*delta[0])
-        a_mod=np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())
-        x=np.array(np.transpose(x))*np.array(a_mod.tolist())
-        x=np.matrix(x)
-        x=np.delete(x, 0, 1)#deleta a primeira(0) coluna(1)
-        print(x)
-        delta.insert(0,x)
-    
-    delta.insert(0,x)#duplica ultimo só pra ficar alinhado
-    print("deltas")
-    print(delta)
+    #utiliza 2 exemplos
+    for n_exemplo in range(len(treino)):
+        print("\n\n---------------------\nEXEMPLO ",n_exemplo)
+        a_list, previsao = rede(treino[n_exemplo,0])
+        erro=previsao-treino[n_exemplo,1]
+        delta=[]
+        delta.append(np.matrix([erro]))
+        print("delta da ultima camada= ", delta)
+        #print(a_list)
+        print("deltas")
+        for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
+            print("camada ",i)
+            x=(np.transpose(theta[i])*delta[0])
+            a_mod=np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())
+            x=np.array(np.transpose(x))*np.array(a_mod.tolist())
+            x=np.matrix(x)
+            x=np.delete(x, 0, 1)#deleta a primeira(0) coluna(1)
+            print(x)
+            delta.insert(0,x)
+        
+        delta.insert(0,x)#duplica ultimo só pra ficar alinhado
+        #print(delta)
+        
+        print("calculando D")
+        for i in range(len(neunos_por_camada)-2,-1,-1):#D da penultima camada até a primeira
+            print("camada ",i)
+            teste=np.transpose(delta[i+1])*(a_list[i])
+            #print(teste)
+            D[i]=D[i]+teste
+            print(D[i])
 
-    #D é o gradiente
-    
+    #return
+    print("\nDADOS DE TREINO PROCESSADOS\n-----------------\ncalculando D regularizado")
+    for i in range(len(neunos_por_camada)-2,-1,-1):#D da penultima camada até a primeira, regularizando
+        print("camada ",i)
+        theta_sem_bias=np.zeros([len(D[i]),1])
+        theta_sem_bias=np.concatenate((theta_sem_bias,np.delete(theta[i], 0, 1)), axis=1)
+        #print(theta_sem_bias)
+        P=reg_lambda*theta_sem_bias
+        #print(P)
+        n=len(treino)
+        D[i]=(D[i]+P)/n
+        print(D[i])
+
+
     return
 
 if __name__ == "__main__":
