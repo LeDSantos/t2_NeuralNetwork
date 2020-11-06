@@ -41,7 +41,7 @@ def rede(x, theta, num_camadas):
         z=fun_g(z)
 
 #chama rede e propaga o erro encontrado quando a previsao é comparada com o valor esperado
-def backpropagation(treino, num_camadas, theta, alfa):
+def backpropagation(treino, num_camadas, theta, alfa, J_rede):
     D=[]
     for i in range(num_camadas-1):
         D.append(np.matrix([0]))#gradiente inicial
@@ -49,12 +49,20 @@ def backpropagation(treino, num_camadas, theta, alfa):
     for n_exemplo in range(len(treino)):#depois dá de mudar isso
         print("\n---------------------\nEXEMPLO ",n_exemplo)
         a_list= rede(treino[n_exemplo,0], theta, num_camadas)
-        erro=a_list[-1][0,1]-treino[n_exemplo,1]# previsto - esperado
+        previsto=a_list[-1][0,1]
+        esperado=treino[n_exemplo,1]
+        erro=previsto-esperado# previsto - esperado
         delta=[]
         delta.append(np.matrix([erro]))
+
+        J_exemplo=-esperado*np.log(previsto)-(1-esperado)*np.log(1-previsto)
+        print("-->>>>>J: ",J_exemplo)
+        
+        J_rede=J_rede+J_exemplo
+
         print("-> Delta da ultima camada= ", delta,"\n")
         print("-> Deltas")
-        for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
+        for i in range(num_camadas-2,0,-1):#delta da penultima camada até a segunda
             print("camada ",i)
             x=(np.transpose(theta[i])*delta[0])
             a_mod=np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())
@@ -73,25 +81,38 @@ def backpropagation(treino, num_camadas, theta, alfa):
             print(D[i])
 
     print("\nDADOS DE TREINO PROCESSADOS\n-----------------\n\n-> Calculando D regularizado")
-    for i in range(len(neunos_por_camada)-2,-1,-1):#D da penultima camada até a primeira, regularizando
+    n=len(treino)
+    for i in range(num_camadas-2,-1,-1):#D da penultima camada até a primeira, regularizando
         print("camada ",i)
         theta_sem_bias=np.concatenate((np.zeros([len(D[i]),1]),np.delete(theta[i], 0, 1)), axis=1)
-        P=reg_lambda*theta_sem_bias
-        n=len(treino)
+        S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
+        S=S.sum()
+        #print(S)
+        P=reg_lambda*theta_sem_bias        
         D[i]=(D[i]+P)/n
         print(D[i])
-
-    for i in range(len(neunos_por_camada)-2,-1,-1):#atualiza pesos penultima camada até a primeira
+    
+    #print("\n-> Calculando J regularizado")
+    J_rede=J_rede/n
+    S=(reg_lambda/(2*n))*S
+    #S=np.array(theta.tolist())*np.array(theta.tolist())#*np.array((1-a_list[i]).tolist())
+    #print(S)
+    custo=J_rede+S
+    print("-> Custo regularizado J+S: ",custo)
+    
+    for i in range(num_camadas-2,-1,-1):#atualiza pesos penultima camada até a primeira
         theta[i]=theta[i]-alfa*D[i]
 
     print("\n-> Pesos/thetas atualizados\n",theta)
 
-    return theta#atualizado
+    return theta, custo#atualizado
 
 
 def main():
     #usando exemplo_backprop_rede1.txt
     #utiliza 2 exemplos
+
+    #taxa de aprendizado
     alfa=0.01#####ULTIMA LINHA DO ALG BACK, NÃO SEI O MELHOR VALOR
     
     print("-> Informações iniciais:")
@@ -99,7 +120,8 @@ def main():
     print("Theta inicial:\n",theta_original)
     print("Conjunto de treino:\n", treino_original)
 
-    theta_atualizado=backpropagation(treino_original, len(neunos_por_camada), theta_original, alfa)
+    J_rede=0.0
+    theta_atualizado, J_rede=backpropagation(treino_original, len(neunos_por_camada), theta_original, alfa, J_rede)
 
     return
 
