@@ -52,7 +52,8 @@ def mult_elemento_mat(a,b):
 def main():
     #usando exemplo_backprop_rede1.txt
     delta=[]
-    delta.append(rede(treino[1,0])-treino[1,1])
+    #utiliza o primeiro exemplo
+    delta.append(rede(treino[0,0])-treino[0,1])
     print("delta da ultima camada= ", delta)
     print(a_list)
     for i in range(len(neunos_por_camada)-2,0,-1):#delta da penultima camada até a segunda
