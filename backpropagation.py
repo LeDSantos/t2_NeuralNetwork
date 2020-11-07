@@ -203,7 +203,19 @@ def main(args):
     treino=[]
     novalinha=arq_treino_inicial.readline()
     while (novalinha != ""):
-        treino.append(np.matrix(novalinha))
+        exemplo=novalinha.split(";")
+
+        entradas=exemplo[0].split(",")
+        for i in range(len(entradas)):
+            entradas[i]=float(entradas[i])
+        entradas=np.array(entradas)
+
+        saidas=exemplo[1].split(",")
+        for i in range(len(saidas)):
+            saidas[i]=float(saidas[i])
+        saidas=np.array(saidas)
+
+        treino.append([entradas,saidas])
         novalinha=arq_treino_inicial.readline()        
 
     #taxa de aprendizado
