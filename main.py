@@ -40,6 +40,48 @@ def rede(x, theta, num_camadas):
         print("z",i,": ",z)
         z=fun_g(z)
 
+def gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n):
+    print("GRADIENTE NUMERICO")
+    S_total=0
+    
+    for n_camada in range(num_camadas-2,-1,-1):#S da penultima camada até a primeira, regularizando
+        theta_mod=theta
+        print(theta_mod[n_camada])
+        theta_mod[n_camada]=theta_mod[n_camada]+epsilon
+        print("SOMA")
+        print(theta_mod[n_camada])
+        for i in range(num_camadas-2,-1,-1):#S da penultima camada até a primeira, regularizando
+            print("camada ",i)
+            theta_sem_bias=np.concatenate((np.zeros([len(theta_mod[i]),1]),np.delete(theta_mod[i], 0, 1)), axis=1)
+            S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
+            S_total=S_total+S.sum()
+            print(S_total)
+        #J_rede=J_rede/n #já ta dividido
+        S_total=(reg_lambda/(2*n))*S_total
+        custo_mais_ep=J_rede+S_total
+        print("CUSTO + epsilon: ", custo_mais_ep)
+
+        theta_mod=theta
+        print(theta_mod[n_camada])
+        theta_mod[n_camada]=theta_mod[n_camada]-epsilon
+        print("MENOS")
+        print(theta_mod[n_camada])
+        for i in range(num_camadas-2,-1,-1):#S da penultima camada até a primeira, regularizando
+            print("camada ",i)
+            theta_sem_bias=np.concatenate((np.zeros([len(theta_mod[i]),1]),np.delete(theta_mod[i], 0, 1)), axis=1)
+            S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
+            S_total=S_total+S.sum()
+            print(S_total)
+        #J_rede=J_rede/n #já ta dividido
+        S_total=(reg_lambda/(2*n))*S_total
+        custo_menos_ep=J_rede+S_total
+        print("CUSTO - epsilon: ", custo_menos_ep)
+    
+        grad_num=(custo_mais_ep-custo_menos_ep)/(2*epsilon)
+        print(">>>>>>>>>>>>>>>>>>Grad numerico da camada ",n_camada,":",grad_num)
+    
+    return
+
 #chama rede e propaga o erro encontrado quando a previsao é comparada com o valor esperado
 def backpropagation(treino, num_camadas, theta, alfa, J_rede):
     D=[]
@@ -82,11 +124,12 @@ def backpropagation(treino, num_camadas, theta, alfa, J_rede):
 
     print("\nDADOS DE TREINO PROCESSADOS\n-----------------\n\n-> Calculando D regularizado")
     n=len(treino)
+    S_total=0
     for i in range(num_camadas-2,-1,-1):#D da penultima camada até a primeira, regularizando
         print("camada ",i)
-        theta_sem_bias=np.concatenate((np.zeros([len(D[i]),1]),np.delete(theta[i], 0, 1)), axis=1)
+        theta_sem_bias=np.concatenate((np.zeros([len(theta[i]),1]),np.delete(theta[i], 0, 1)), axis=1)
         S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
-        S=S.sum()
+        S_total=S_total+S.sum()
         #print(S)
         P=reg_lambda*theta_sem_bias        
         D[i]=(D[i]+P)/n
@@ -94,10 +137,15 @@ def backpropagation(treino, num_camadas, theta, alfa, J_rede):
     
     #print("\n-> Calculando J regularizado")
     J_rede=J_rede/n
-    S=(reg_lambda/(2*n))*S
+    S_total=(reg_lambda/(2*n))*S_total
     #S=np.array(theta.tolist())*np.array(theta.tolist())#*np.array((1-a_list[i]).tolist())
     #print(S)
-    custo=J_rede+S
+    custo=J_rede+S_total
+    ###############
+    #J numerico ######NÃO FUNCIONA
+    epsilon=0.0000010000
+    #gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n)
+    ###############
     print("-> Custo regularizado J+S: ",custo)
     
     for i in range(num_camadas-2,-1,-1):#atualiza pesos penultima camada até a primeira
