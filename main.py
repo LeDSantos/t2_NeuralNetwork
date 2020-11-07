@@ -7,14 +7,14 @@ from multiprocessing import Pool
 import time
 
 #usando exemplo_backprop_rede1.txt
-reg_lambda=0.000
-neunos_por_camada=[1, 2, 1]
+#reg_lambda=0.000
+#neunos_por_camada=[1, 2, 1]
 #já considera os termos de bias
-theta_original=[]
+#theta_original=[]
 theta1=np.matrix([[0.40000 , 0.10000  ], [0.30000 , 0.20000 ]])
 theta2=np.matrix([0.70000,  0.50000,  0.60000 ])
-theta_original.append(theta1)
-theta_original.append(theta2)
+#theta_original.append(theta1)
+#theta_original.append(theta2)
 treino_original=	np.matrix([[0.13000, 0.90000], [0.42000, 0.23000]])
 #treino x->y
 
@@ -28,7 +28,7 @@ def rede(x, theta, num_camadas):
     a_list=[]
     print("entrada x: ",x)
     z=np.matrix(x)#insere valor de entrada
-    for i in range(len(neunos_por_camada)):
+    for i in range(num_camadas):
         a=np.matrix([1.0])#termo de bias
         a=np.concatenate((a,z), axis=1)
         a_list.append(a)
@@ -40,7 +40,7 @@ def rede(x, theta, num_camadas):
         print("z",i,": ",z)
         z=fun_g(z)
 
-def gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n):
+def gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n, reg_lambda):
     print("GRADIENTE NUMERICO")
     S_total=0
     
@@ -83,7 +83,7 @@ def gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n):
     return
 
 #chama rede e propaga o erro encontrado quando a previsao é comparada com o valor esperado
-def backpropagation(treino, num_camadas, theta, alfa, J_rede):
+def backpropagation(treino, num_camadas, theta, alfa, J_rede, reg_lambda):
     D=[]
     for i in range(num_camadas-1):
         D.append(np.matrix([0]))#gradiente inicial
@@ -117,7 +117,7 @@ def backpropagation(treino, num_camadas, theta, alfa, J_rede):
         delta.insert(0,x)#duplica ultimo só pra ficar alinhado
         
         print("\n-> Calculando D")
-        for i in range(len(neunos_por_camada)-2,-1,-1):#D da penultima camada até a primeira
+        for i in range(num_camadas-2,-1,-1):#D da penultima camada até a primeira
             print("camada ",i)
             D[i]=D[i]+np.transpose(delta[i+1])*(a_list[i])
             print(D[i])
@@ -144,7 +144,7 @@ def backpropagation(treino, num_camadas, theta, alfa, J_rede):
     ###############
     #J numerico ######NÃO FUNCIONA
     epsilon=0.0000010000
-    #gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n)
+    #gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n, reg_lambda)
     ###############
     print("-> Custo regularizado J+S: ",custo)
     
@@ -156,7 +156,39 @@ def backpropagation(treino, num_camadas, theta, alfa, J_rede):
     return theta, custo#atualizado
 
 
-def main():
+def main(args):#chamar com python3 main.py networkEXP1.txt initial_weightsEXP1.txt datasetEXP1.txt
+    print("Infos network: ",args[1])
+    infos = open(args[1], 'r')
+    reg_lambda=float(infos.readline())
+    #n_camadas=sum(1 for line in infos)
+    neunos_por_camada=infos.readlines()
+    #for linha in infos:
+    #    neunos_por_camada.append(int(infos.readline()))
+    #    print(neunos_por_camada[-1])
+    num_camadas=len(neunos_por_camada)
+    for i in range(num_camadas):
+        neunos_por_camada[i]=int(neunos_por_camada[i])
+    #print(neunos_por_camada)
+
+    print("Pesos iniciais: ",args[2])
+    arq_theta_inicial = open(args[2], 'r')
+
+    theta_original=[]
+    for i in range(num_camadas-1):
+        theta_original.append(np.matrix(arq_theta_inicial.readline()))
+
+    print(theta_original)
+    
+    print("Dataset: ",args[3])
+    arq_treino_inicial = open(args[3], 'r')
+    treino=[]
+    for i in range(num_camadas-1):
+        treino.insert(0,np.matrix(arq_treino_inicial.readline()))
+        
+    print(treino)
+    
+    #./backpropagation network.txt initial_weights.txt dataset.txt
+
     #usando exemplo_backprop_rede1.txt
     #utiliza 2 exemplos
 
@@ -166,12 +198,12 @@ def main():
     print("-> Informações iniciais:")
     print("Neuronios em cada camada: ",neunos_por_camada)
     print("Theta inicial:\n",theta_original)
-    print("Conjunto de treino:\n", treino_original)
+    print("Conjunto de treino:\n", treino)
 
     J_rede=0.0
-    theta_atualizado, J_rede=backpropagation(treino_original, len(neunos_por_camada), theta_original, alfa, J_rede)
+    theta_atualizado, J_rede=backpropagation(treino_original, num_camadas, theta_original, alfa, J_rede, reg_lambda)
 
     return
 
-if __name__ == "__main__":
-    main()
+if __name__ == '__main__':
+    sys.exit(main(sys.argv)) 
