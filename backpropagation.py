@@ -188,8 +188,6 @@ def main(args):
         print("ESQUECEU DOS ARGUMENTOS")
         return
     
-    DEBUG=0
-
     inicio=time.time()
     #TRATAMENTO DOS ARQUIVOS DE ENTRADA
     print("Infos network: ",args[1])#contém lambda de regularização e número de neuronios por camada
@@ -244,4 +242,5 @@ def main(args):
     return
 
 if __name__ == '__main__':
+    DEBUG=1
     sys.exit(main(sys.argv)) 
