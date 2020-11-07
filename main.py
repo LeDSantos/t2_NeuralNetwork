@@ -6,17 +6,7 @@ import numpy as np
 from multiprocessing import Pool
 import time
 
-#usando exemplo_backprop_rede1.txt
-#reg_lambda=0.000
-#neunos_por_camada=[1, 2, 1]
-#já considera os termos de bias
-#theta_original=[]
-theta1=np.matrix([[0.40000 , 0.10000  ], [0.30000 , 0.20000 ]])
-theta2=np.matrix([0.70000,  0.50000,  0.60000 ])
-#theta_original.append(theta1)
-#theta_original.append(theta2)
-treino_original=	np.matrix([[0.13000, 0.90000], [0.42000, 0.23000]])
-#treino x->y
+
 
 #função sigmoide
 def fun_g(x):
@@ -34,7 +24,7 @@ def rede(x, theta, num_camadas):
         a_list.append(a)
         print("a",i,": ",a)
         if i==num_camadas-1:
-            print("-> Saida f: ", a[0,1])
+            print("-> Saida f: ", a)
             return a_list
         z=a*np.transpose(theta[i])#calcula saidas da camada
         print("z",i,": ",z)
@@ -90,14 +80,20 @@ def backpropagation(treino, num_camadas, theta, alfa, J_rede, reg_lambda):
 
     for n_exemplo in range(len(treino)):#depois dá de mudar isso
         print("\n---------------------\nEXEMPLO ",n_exemplo)
-        a_list= rede(treino[n_exemplo,0], theta, num_camadas)
-        previsto=a_list[-1][0,1]
-        esperado=treino[n_exemplo,1]
+        print(treino[n_exemplo])
+        a_list= rede(treino[n_exemplo][0], theta, num_camadas)
+        previsto=a_list[-1]
+        print(previsto)
+        previsto=np.delete(previsto, 0, 1)#deleta a primeira(0) coluna(1)
+        print(previsto)
+        esperado=treino[n_exemplo][1]
+        print(esperado)
         erro=previsto-esperado# previsto - esperado
+        print(erro)
         delta=[]
-        delta.append(np.matrix([erro]))
+        delta.append(np.matrix(erro))
 
-        J_exemplo=-esperado*np.log(previsto)-(1-esperado)*np.log(1-previsto)
+        J_exemplo=np.sum(-np.array(esperado.tolist())*np.array(np.log(previsto).tolist())-np.array((1-esperado).tolist())*np.array(np.log(1-previsto).tolist()))
         print("-->>>>>J: ",J_exemplo)
         
         J_rede=J_rede+J_exemplo
@@ -106,8 +102,10 @@ def backpropagation(treino, num_camadas, theta, alfa, J_rede, reg_lambda):
         print("-> Deltas")
         for i in range(num_camadas-2,0,-1):#delta da penultima camada até a segunda
             print("camada ",i)
-            x=(np.transpose(theta[i])*delta[0])
+            x=(np.transpose(theta[i])*np.transpose(delta[0]))
+            print(x)
             a_mod=np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())
+            print(a_mod)
             x=np.array(np.transpose(x))*np.array(a_mod.tolist())
             x=np.matrix(x)
             x=np.delete(x, 0, 1)#deleta a primeira(0) coluna(1)
@@ -182,8 +180,10 @@ def main(args):#chamar com python3 main.py networkEXP1.txt initial_weightsEXP1.t
     print("Dataset: ",args[3])
     arq_treino_inicial = open(args[3], 'r')
     treino=[]
-    for i in range(num_camadas-1):
-        treino.insert(0,np.matrix(arq_treino_inicial.readline()))
+    novalinha=arq_treino_inicial.readline()
+    while (novalinha != ""):
+        treino.append(np.matrix(novalinha))
+        novalinha=arq_treino_inicial.readline()
         
     print(treino)
     
@@ -201,7 +201,7 @@ def main(args):#chamar com python3 main.py networkEXP1.txt initial_weightsEXP1.t
     print("Conjunto de treino:\n", treino)
 
     J_rede=0.0
-    theta_atualizado, J_rede=backpropagation(treino_original, num_camadas, theta_original, alfa, J_rede, reg_lambda)
+    theta_atualizado, J_rede=backpropagation(treino, num_camadas, theta_original, alfa, J_rede, reg_lambda)
 
     return
 
