@@ -166,10 +166,26 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda):
     ###############
     if(DEBUG): print("-> Custo regularizado J+S: ",custo)
     
-    for i in range(num_camadas-2,-1,-1):#atualiza pesos penultima camada até a primeira
-        theta[i]=theta[i]-alfa*D[i]
+    if(DEBUG):
+        saida = open("saida_backprop.txt", 'w')
+        saida.write("Pesos / Gradiente\n")
 
-    if(DEBUG): print("\n-> Pesos/thetas atualizados\n",theta)
+    for i in range(num_camadas-1):#atualiza pesos
+        theta[i]=theta[i]-alfa*D[i]
+        if(DEBUG):
+            for linha in range(len(theta[i])):
+                theta[i][linha].tofile(saida,sep=", ",format='%.5f')
+                saida.write("; ")
+            saida.write("/")
+            for linha in range(len(D[i])):
+                D[i][linha].tofile(saida,sep=", ",format='%.5f')
+                saida.write("; ")
+            saida.write("\n")
+
+    if(DEBUG):
+        print("\n-> Pesos/thetas atualizados\n",theta,"\n Informações no arquivo saida_backprop.txt")
+        saida.write("ALFA: "+ str(alfa))
+        saida.close()
 
     return theta, custo
 
