@@ -24,7 +24,7 @@ def treina_e_testa(args):
     #INICIANDO THETAS COM VALORES ALEATÓRIOS
     theta=[]
     for i in range(len(config_rede)-1):
-        theta.append(np.matrix(np.random.uniform(low=-1.0, high=1.0, size=(config_rede[i+1], config_rede[i]+1))))
+        theta.append(np.matrix(np.random.normal(0, 1, size=(config_rede[i+1], config_rede[i]+1))))
         if(DEBUG): print("THETA INICIAL: \n",theta[i])
     
     #ORGANIZA TREINO EM MATRIZ
