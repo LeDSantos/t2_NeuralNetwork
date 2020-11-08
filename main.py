@@ -24,7 +24,8 @@ def treina_e_testa(args):
     #INICIANDO THETAS COM VALORES ALEATÓRIOS
     theta=[]
     for i in range(len(config_rede)-1):
-        theta.append(np.matrix(np.random.rand(config_rede[i+1], config_rede[i]+1)))
+        theta.append(np.matrix(np.random.uniform(low=-1.0, high=1.0, size=(config_rede[i+1], config_rede[i]+1))))
+        if(DEBUG): print("THETA INICIAL: \n",theta[i])
     
     #ORGANIZA TREINO EM MATRIZ
     matrix_treino=np.matrix(treino.to_numpy())
@@ -198,11 +199,11 @@ def main():
     if(DEBUG): print(df_train)
 
     neuros_iniciais=len(df_train.dtypes)-1
-    neuros_ocultos=[[10, 5, 5], [2, 4, 3, 2], [10, 8, 6, 4, 3],[5, 5], [2, 4, 3, 2]]#DEFINE AS REDES Q SERÃO TREINADAS
+    neuros_ocultos=[[10],[10, 10, 10, 10]]#DEFINE AS REDES Q SERÃO TREINADAS
     neuros_saida=len(df_train[target_attribute].unique())
 
-    alfa=[0.9, 0.6, 0.5, 0.3, 0.2]
-    reg_lambda=[0.250, 0.250, 0.250, 0.5, 0.7]#para regularização
+    alfa=[0.9, 0.9]
+    reg_lambda=[0.25, 0.250]#para regularização
 
     print("Rede; Alfa; Reg_lambda; Acuracia; desvio_padrao; tempo_exe")
     for i in range(len(neuros_ocultos)):
