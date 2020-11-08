@@ -31,6 +31,15 @@ def rede(x, theta):
         if(DEBUG): print("z",i,": ",z)
         z=fun_g(z)
 
+def predict(x, theta):
+    '''Retorna previsão de saída para a entrada x em uma rede com pesos theta'''
+    print("NO PREDICT")
+    print("ENTRADA: ",x)
+    a_list= rede(x, theta)#, num_camadas)
+
+    previsto=np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
+    return previsto
+
 def gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n, reg_lambda):
     '''NÃO ESTÁ FUNCIONANDO'''
     print("GRADIENTE NUMERICO")
