@@ -33,8 +33,7 @@ def rede(x, theta):
 
 def predict(x, theta):
     '''Retorna previsão de saída para a entrada x em uma rede com pesos theta'''
-    print("NO PREDICT")
-    print("ENTRADA: ",x)
+    if(DEBUG): print("NO PREDICT\nENTRADA: ",x)
     a_list= rede(x, theta)#, num_camadas)
 
     previsto=np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
@@ -197,11 +196,6 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda):
         saida.close()
 
     return theta, custo
-
-def teste():
-    print("AQUIIIIII")
-    return
-
 
 def main(args):
     '''

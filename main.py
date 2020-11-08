@@ -7,6 +7,8 @@ from multiprocessing import Pool
 import time
 import backpropagation as bp
 
+DEBUG=0
+
 dataset = {}
 dataset["votos"] = {\
     "data": ('house-votes-84.tsv', '\t'), \
@@ -17,70 +19,38 @@ dataset["vinho"] = {\
 
 #def treina_e_testa(treino, teste, target_coluna, n_arvores):
 def treina_e_testa(args):
-    treino , teste, target_coluna, config_rede = args
+    treino , teste, target_coluna, config_rede, alfa, reg_lambda = args
 
     #INICIANDO THETAS COM VALORES ALEATÓRIOS
     theta=[]
-    #valor_padrao=0.5
-    #print(config_rede)np.random.rand(3,2)
     for i in range(len(config_rede)-1):
         theta.append(np.matrix(np.random.rand(config_rede[i+1], config_rede[i]+1)))
     
-    #print(theta)
-
-    #matrix_treino=df_train.to_numpy()
-    #print(matrix_treino)
-    #previsto=np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
-
-
+    #ORGANIZA TREINO EM MATRIZ
     matrix_treino=np.matrix(treino.to_numpy())
-    #print(matrix_treino)
     treino_organizado=[]
     for i in range(len(treino)):
-        #print("deletar coluna ",target_coluna)
-        #print("exemplo ",i,": ",matrix_treino[i])
-        #print("saida: ",matrix_treino[i,target_coluna])
         entradas=np.delete(matrix_treino[i], target_coluna, 1)
-        #print(entradas)
 
         saida=matrix_treino[i,target_coluna]
-        #saida=0.5
-        #config_rede[-1]=3
         lista_saidas=[]#cria uma lista com as classes de saida possíveis
         for j in range(config_rede[-1]):
-            lista_saidas.append(0.0)
-        
+            lista_saidas.append(0.0)        
         lista_saidas[int(saida*(config_rede[-1]-1))]=1.0#coloca 1 na classe esperada
-        treino_organizado.append([ np.array(entradas), np.array(lista_saidas)])
-        #print("AQUIIIIIII")
 
-    #print(treino_organizado)
+        treino_organizado.append([ np.array(entradas), np.array(lista_saidas)])
+
+    #ORGANIZA TESTE EM MATRIZ
     matrix_teste=np.matrix(teste.to_numpy())
-    #print(matrix_treino)
     teste_organizado=[]
     for i in range(len(teste)):
-        #print("deletar coluna ",target_coluna)
-        #print("exemplo ",i,": ",matrix_treino[i])
-        #print("saida: ",matrix_treino[i,target_coluna])
-        entradas=np.delete(matrix_teste[i], target_coluna, 1)
-        #print(entradas)
-
-        #saida=matrix_treino[i,target_coluna]
-        #saida=0.5
-        #config_rede[-1]=3
-        #lista_saidas=[]#cria uma lista com as classes de saida possíveis
-        #for j in range(config_rede[-1]):
-        #    lista_saidas.append(0.0)
+        entradas=np.delete(matrix_teste[i], target_coluna, 1)#retira a coluna target
         
-        #lista_saidas[int(saida*(config_rede[-1]-1))]=1.0#coloca 1 na classe esperada
         teste_organizado.append([ np.array(entradas), matrix_teste[i,target_coluna]])
 
-    alfa=0.00001
-    reg_lambda=0.250
-    print("NO BACK")
+    if(DEBUG): print("NO BACK")
     theta_modelo, custoJ_S = bp.backpropagation(treino_organizado,theta,alfa,0,reg_lambda) #TEM Q ARRUMAR FlorestaAleatoria(treino, target_coluna, n_arvores); #parametro n_arvores
-    print("novo theta")
-    print(theta_modelo)
+    if(DEBUG): print("novo theta\n",theta_modelo)
     
     #np.delete(np.matrix(treino.to_numpy()), -1, 1)
     key_list = list(treino.columns)
@@ -95,15 +65,14 @@ def treina_e_testa(args):
         #print("[{}/{}]{:0.2f}% complete...".format(i+1, K,100*(nrow+1)/len(test.index) ), end='\r')
         nrow += 1
         #print("EXEMPLO: ",test_row)
-        print("RESPOSTA DO PREDICT")
-        print(resp)
+        if(DEBUG): print("RESPOSTA DO PREDICT: ",resp)
         #result = numpy.where(arr == numpy.amax(arr))
         localizado=np.where(resp == np.max(resp))
         predito=localizado[1][0]
-        print("maior em ",predito)
+        if(DEBUG): print("maior em ",predito)
         esperado=int(test_row[1]*(config_rede[-1]-1))
-        print("esperado ",esperado)
-        #return
+        if(DEBUG): print("esperado ",esperado)
+
         #atualiza a matriz de confusao
         if predito == esperado:
             table_of_confusion['CERTO'] += 1
@@ -113,7 +82,7 @@ def treina_e_testa(args):
     return table_of_confusion
 
 
-def cross_validation(df, target, config_rede, K):
+def cross_validation(df, target, config_rede, K, alfa, reg_lambda):
     target_classes = df[target].value_counts() # TODO: unused var
     #dividir o dataset nas classes do atributo alvo
     df_list= []
@@ -161,7 +130,7 @@ def cross_validation(df, target, config_rede, K):
     #roda os treinos em paralelo
     with Pool(processes=1) as pool:
         #encapsula os argumentos
-        arg_list = (zip(train, test, [target_coluna]*K, [config_rede]*K))#[]*K é para ir uma copia igual para cada processo
+        arg_list = (zip(train, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K))#[]*K é para ir uma copia igual para cada processo
         result_list = pool.map(treina_e_testa, arg_list)
 
 #    print(result_list)
@@ -179,7 +148,6 @@ def cross_validation(df, target, config_rede, K):
 
 
 def main():
-    #bp.teste()
     '''
     PARA RODAR O BACK COM OS DATASETS GRANDES:
     precisa processar os arquivos de entrada com panda para extrair:
@@ -205,50 +173,55 @@ def main():
     key_list=[]
     type_list=[]
     for i in range(df_train_attribute.shape[0]):
-        print(df_train_attribute.values[i])
+        if(DEBUG): print(df_train_attribute.values[i])
         key_list.append(df_train_attribute.values[i][0])
         type_list.append(df_train_attribute.values[i][1])
 
-    print(key_list)
+    if(DEBUG): print(key_list)
     
     target_attribute = key_list[-1]
-
-    print(target_attribute)
+    if(DEBUG): print(target_attribute)
 
     attr_type_dict = dict(zip(key_list, type_list))
     df_train = df_train.astype(attr_type_dict)
-    print(df_train.dtypes)
+    if(DEBUG): print(df_train.dtypes)
 
-    print(df_train)
+    if(DEBUG): print(df_train)
     category_columns = df_train.select_dtypes(['category']).columns
     df_train[category_columns] = df_train[category_columns].apply(lambda x: x.cat.codes)
-    print(df_train.dtypes)
-    print(df_train)
+    if(DEBUG):
+        print(df_train.dtypes)
+        print(df_train)
 
     #normalização
     df_train=((df_train-df_train.min())/(df_train.max()-df_train.min()))
-    print(df_train)
+    if(DEBUG): print(df_train)
 
-    #ORGANIZAÇÃO DA REDE
-    neunos_por_camada=[]
-    neunos_por_camada.append(len(df_train.dtypes)-1)#neuros iniciais
+    neuros_iniciais=len(df_train.dtypes)-1
+    neuros_ocultos=[[10, 5, 5], [2, 4, 3, 2], [10, 8, 6, 4, 3],[5, 5], [2, 4, 3, 2]]#DEFINE AS REDES Q SERÃO TREINADAS
+    neuros_saida=len(df_train[target_attribute].unique())
 
-    neuros_ocultos=[5, 5]#[2, 4, 3, 2]
+    alfa=[0.9, 0.6, 0.5, 0.3, 0.2]
+    reg_lambda=[0.250, 0.250, 0.250, 0.5, 0.7]#para regularização
 
-    neunos_por_camada=neunos_por_camada+neuros_ocultos
+    print("Rede; Alfa; Reg_lambda; Acuracia; desvio_padrao; tempo_exe")
+    for i in range(len(neuros_ocultos)):
+        #ORGANIZAÇÃO DA REDE
+        neunos_por_camada=[neuros_iniciais]#neuros iniciais
+        neunos_por_camada=neunos_por_camada+neuros_ocultos[i]
+        neunos_por_camada.append(neuros_saida)#neuros de saida, um para cada categoria
+        if(DEBUG): print("neuronios por camada: ", neunos_por_camada)
 
-    neunos_por_camada.append(len(df_train[target_attribute].unique()))#neuros de saida, um para cada categoria
-    print("neuronios por camada: ", neunos_por_camada)
-    n_camadas=len(neunos_por_camada)
+        n_camadas=len(neunos_por_camada)
 
-    print("Rede; Acuracia; desvio_padrao; tempo_exe")
-    #for n in valores_de_teste:
-    ini = time.time()
-    config_rede = neunos_por_camada
-    n, acc, stdev = cross_validation(df_train, target_attribute, config_rede, 10)
-    fim = time.time()
-    print("Rede; Acuracia; desvio_padrao; tempo_exe")
-    print("{}; {}; {}; {}".format(n, acc, stdev, fim-ini))
+        #TESTE MESMO
+        ini = time.time()
+        config_rede = neunos_por_camada
+        n, acc, stdev = cross_validation(df_train, target_attribute, config_rede, 10, alfa[i], reg_lambda[i])
+        fim = time.time()
+        #print("Rede; Acuracia; desvio_padrao; tempo_exe")
+        if(DEBUG): print("Rede; Alfa; Reg_lambda; Acuracia; desvio_padrao; tempo_exe")
+        print("{}; {:.5f}; {:.5f}; {:.5f}; {:.5f}; {:.5f}".format(n, alfa[i], reg_lambda[i], acc, stdev, fim-ini))
 
     return
 
