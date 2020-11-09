@@ -40,49 +40,6 @@ def predict(x, theta):
     previsto=np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
     return previsto
 
-def gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n, reg_lambda):
-    '''NÃO ESTÁ FUNCIONANDO'''
-    print("GRADIENTE NUMERICO")
-    S_total=0
-    
-    for n_camada in range(num_camadas-2,-1,-1):#S da penultima camada até a primeira, regularizando
-        theta_mod=theta
-        print(theta_mod[n_camada])
-        theta_mod[n_camada]=theta_mod[n_camada]+epsilon
-        print("SOMA")
-        print(theta_mod[n_camada])
-        for i in range(num_camadas-2,-1,-1):#S da penultima camada até a primeira, regularizando
-            print("camada ",i)
-            theta_sem_bias=np.concatenate((np.zeros([len(theta_mod[i]),1]),np.delete(theta_mod[i], 0, 1)), axis=1)
-            S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
-            S_total=S_total+S.sum()
-            print(S_total)
-        #J_rede=J_rede/n #já ta dividido
-        S_total=(reg_lambda/(2*n))*S_total
-        custo_mais_ep=J_rede+S_total
-        print("CUSTO + epsilon: ", custo_mais_ep)
-
-        theta_mod=theta
-        print(theta_mod[n_camada])
-        theta_mod[n_camada]=theta_mod[n_camada]-epsilon
-        print("MENOS")
-        print(theta_mod[n_camada])
-        for i in range(num_camadas-2,-1,-1):#S da penultima camada até a primeira, regularizando
-            print("camada ",i)
-            theta_sem_bias=np.concatenate((np.zeros([len(theta_mod[i]),1]),np.delete(theta_mod[i], 0, 1)), axis=1)
-            S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
-            S_total=S_total+S.sum()
-            print(S_total)
-        #J_rede=J_rede/n #já ta dividido
-        S_total=(reg_lambda/(2*n))*S_total
-        custo_menos_ep=J_rede+S_total
-        print("CUSTO - epsilon: ", custo_menos_ep)
-    
-        grad_num=(custo_mais_ep-custo_menos_ep)/(2*epsilon)
-        print(">>>>>>>>>>>>>>>>>>Grad numerico da camada ",n_camada,":",grad_num)
-    
-    return
-
 def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, EXECUTA_UMA_VEZ):
     '''
     Retorna theta e custo J+S FINAIS.
