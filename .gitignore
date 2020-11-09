@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 #IGNORAR
-/saida_backprop*.txt
+/saida_*.txt
 /custoJrede_*.txt
