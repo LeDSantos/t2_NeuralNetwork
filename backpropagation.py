@@ -216,7 +216,7 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
         if(EXECUTA_UMA_VEZ): break
     
     if(DEBUG):        
-        saida.write("ALFA: "+ str(alfa))
+        saida.write("reg_lambda: "+ str(reg_lambda))
         saida.close()
     
     if(IMPRIME_J):  arq_J.close()
