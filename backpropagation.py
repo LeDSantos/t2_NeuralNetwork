@@ -74,7 +74,7 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
 
     if(DEBUG):
         saida = open("saida_backprop_rede_"+str(estrutura_rede)+".txt", 'w')
-        saida.write("Pesos / Gradiente\n")
+        #saida.write("Pesos / Gradiente\n")
 
     custo=0
     custo_ant=10
@@ -157,10 +157,10 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
         for i in range(num_camadas-1):#atualiza pesos
             theta[i]=theta[i]-alfa*D[i]
             if(DEBUG):
-                for linha in range(len(theta[i])):
-                    theta[i][linha].tofile(saida,sep=", ",format='%.5f')
-                    saida.write("; ")
-                saida.write("/")
+                #for linha in range(len(theta[i])):
+                #    theta[i][linha].tofile(saida,sep=", ",format='%.5f')
+                #    saida.write("; ")
+                #saida.write("/")
                 for linha in range(len(D[i])):
                     D[i][linha].tofile(saida,sep=", ",format='%.5f')
                     saida.write("; ")
