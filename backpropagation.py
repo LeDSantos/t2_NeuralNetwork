@@ -5,6 +5,7 @@ import random
 import numpy as np
 from multiprocessing import Pool
 import time
+from random import shuffle
 
 DEBUG=0
 IMPRIME_J=1
@@ -39,6 +40,11 @@ def predict(x, theta):
 
     previsto=np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
     return previsto
+
+
+def batch(seq, size):
+    return (seq[pos:pos + size] for pos in range(0, len(seq), size))
+
 
 def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, EXECUTA_UMA_VEZ):
     '''
@@ -76,99 +82,116 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
         saida = open("saida_backprop_rede_"+str(estrutura_rede)+".txt", 'w')
         #saida.write("Pesos / Gradiente\n")
 
+    shuffle(treino)
+
     custo=0
     custo_ant=10
     interacoes=0
-    while abs(custo-custo_ant) > 0.001 and interacoes<500:#repete o back até 500 vezes
+    batch_size = len(treino)     #<<<<COLOCAR COMO PARAMETRO
+    batch_i=0;
+    custo_medio =0
+    custo_medio_ant =10
+    while abs(custo_medio - custo_medio_ant) > 0.0005 and interacoes<500:#repete o back até 500 vezes
         if(DEBUG): print(interacoes)
-        for n_exemplo in range(len(treino)):
-            if(DEBUG):
-                print("\n---------------------\nEXEMPLO ",n_exemplo)
-                print(treino[n_exemplo])
-            a_list= rede(treino[n_exemplo][0], theta)#, num_camadas)
-            previsto=np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
-            esperado=treino[n_exemplo][1]
-            erro=previsto-esperado
-            #print(erro)
+        #batch_treino = treino[0:batch_size]
+        custo_batch = []
+        for batch_treino in batch(treino, batch_size):
+            J_rede = 0 
+            for n_exemplo in range(len(batch_treino)):
+                if(DEBUG):
+                    print("\n---------------------\nEXEMPLO ",n_exemplo)
+                    print(batch_treino[n_exemplo])
+                a_list = rede(batch_treino[n_exemplo][0], theta)#, num_camadas)
+                previsto = np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
+                esperado = batch_treino[n_exemplo][1]
+                erro = previsto - esperado
 
-            J_exemplo=np.sum(-np.array(esperado.tolist())*np.array(np.log(previsto).tolist())-np.array((1-esperado).tolist())*np.array(np.log(1-previsto).tolist()))
-            '''
-            Essa gambiarra toda é para fazer a multiplicação elemento por elemento:
-            J(i) = sum( -y(i) .* log(fθ(x(i))) - (1-y(i)) .* log(1 - fθ(x(i))))
-            (PODE TER UMA FORMA MAIS FÁCIL DE FAZER, MAS O IMPORTANTE É QUE ESSA FUNCIONA)
-            Ou seja: A.*B -> np.array(A.tolist())*np.array(B.tolist())
-            '''
+                J_exemplo = np.sum(-np.multiply( esperado,     np.log(previsto))
+                                   -np.multiply( (1-esperado), np.log(1-previsto)))
+                #J_exemplo = np.sum(-np.array(esperado.tolist())*np.array(np.log(previsto).tolist())-np.array((1-esperado).tolist())*np.array(np.log(1-previsto).tolist()))
+                #'''
+                #Essa gambiarra toda é para fazer a multiplicação elemento por elemento:
+                #J(i) = sum( -y(i) .* log(fθ(x(i))) - (1-y(i)) .* log(1 - fθ(x(i))))
+                #(PODE TER UMA FORMA MAIS FÁCIL DE FAZER, MAS O IMPORTANTE É QUE ESSA FUNCIONA)
+                #Ou seja: A.*B -> np.array(A.tolist())*np.array(B.tolist())
+                #'''
 
-            if(DEBUG): print("-->>>>>J: ",J_exemplo)  
-            J_rede=J_rede+J_exemplo    
+                if(DEBUG): print("-->>>>>J: ",J_exemplo)  
+                J_rede = J_rede + J_exemplo    
 
-            delta=[]
-            delta.append(np.matrix(erro))
-            if(DEBUG):
-                print("-> Delta(erro) da ultima camada= ", delta,"\n")
-                print("-> Deltas")
-            for i in range(num_camadas-2,0,-1):#delta da penultima camada até a segunda
-                if(DEBUG): print("camada ",i)
-                x=(np.transpose(theta[i])*np.transpose(delta[0]))
-                a_mod=np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())#multiplicação por elemento
-                x=np.array(np.transpose(x))*np.array(a_mod.tolist())#multiplicação por elemento
-                x=np.matrix(x)
-                x=np.delete(x, 0, 1)#deleta a primeira(0) coluna(1)
-                if(DEBUG): print(x)
-                delta.insert(0,x)
-            
-            delta.insert(0,x)#duplica ultimo só pra ficar alinhado, pois a primeira camada não tem delta
-            
-            if(DEBUG): print("\n-> Acumulando D(gradiente)")
-            for i in range(num_camadas-2,-1,-1):#D da penultima camada até a primeira
-                D[i]=D[i]+np.transpose(delta[i+1])*(a_list[i])
+                delta=[]
+                delta.append(np.matrix(erro))
+                if(DEBUG):
+                    print("-> Delta(erro) da ultima camada= ", delta,"\n")
+                    print("-> Deltas")
+                for i in range(num_camadas-2,0,-1):#delta da penultima camada até a segunda
+                    if(DEBUG): print("camada ",i)
+                    x=(np.transpose(theta[i])*np.transpose(delta[0]))
+                    #a_mod = np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())#multiplicação por elemento
+                    a_mod = np.multiply(a_list[i], 1-a_list[i])
+                    x = np.array(np.transpose(x))*np.array(a_mod.tolist())#multiplicação por elemento
+                    x=np.matrix(x)
+                    x=np.delete(x, 0, 1)#deleta a primeira(0) coluna(1)
+                    if(DEBUG): print(x)
+                    delta.insert(0,x)
+                
+                delta.insert(0,x)#duplica ultimo só pra ficar alinhado, pois a primeira camada não tem delta
+                
+                if(DEBUG): print("\n-> Acumulando D(gradiente)")
+                for i in range(num_camadas-2,-1,-1):#D da penultima camada até a primeira
+                    D[i]=D[i]+np.transpose(delta[i+1])*(a_list[i])
+                    if(DEBUG):
+                        print("camada ",i)
+                        print(D[i])
+
+            if(DEBUG): print("\nDADOS DE TREINO PROCESSADOS\n-----------------\n\n-> Calculando D(gradiente) regularizado")
+            n=len(batch_treino)#numero de exemplos processados
+            S_total=0#vai receber a soma dos quadrados de todos os thetas/pesos, MENOS OS DE BIAS
+            for i in range(num_camadas-2,-1,-1):#D da penultima camada até a primeira, regularizando
+                theta_sem_bias = np.concatenate((np.zeros([len(theta[i]),1]),np.delete(theta[i], 0, 1)), axis=1)
+                S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
+                S_total=S_total+S.sum()
+                P=reg_lambda*theta_sem_bias        
+                D[i]=(D[i]+P)/n
                 if(DEBUG):
                     print("camada ",i)
                     print(D[i])
+                
+            J_rede=J_rede/n
+            S_total=(reg_lambda/(2*n))*S_total
+            custo_ant=custo
+            custo=J_rede+S_total
 
-        if(DEBUG): print("\nDADOS DE TREINO PROCESSADOS\n-----------------\n\n-> Calculando D(gradiente) regularizado")
-        n=len(treino)#numero de exemplos processados
-        S_total=0#vai receber a soma dos quadrados de todos os thetas/pesos, MENOS OS DE BIAS
-        for i in range(num_camadas-2,-1,-1):#D da penultima camada até a primeira, regularizando
-            theta_sem_bias = np.concatenate((np.zeros([len(theta[i]),1]),np.delete(theta[i], 0, 1)), axis=1)
-            S=np.array(theta_sem_bias.tolist())*np.array(theta_sem_bias.tolist())
-            S_total=S_total+S.sum()
-            P=reg_lambda*theta_sem_bias        
-            D[i]=(D[i]+P)/n
+            custo_batch.append(custo)
+            ###############
+            #J numerico ######NÃO FUNCIONA
+            epsilon=0.0000010000
+            #gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n, reg_lambda)
+            ###############
+            if(DEBUG): print("-> Custo regularizado J+S: ",custo)
+            if(IMPRIME_J):
+                    #print(J_rede)
+                    arq_J.write("{:.5f}\n".format(custo))
+
+
+            for i in range(num_camadas-1):#atualiza pesos
+                theta[i]=theta[i]-alfa*D[i]
+                if(DEBUG):
+                    #for linha in range(len(theta[i])):
+                    #    theta[i][linha].tofile(saida,sep=", ",format='%.5f')
+                    #    saida.write("; ")
+                    #saida.write("/")
+                    for linha in range(len(D[i])):
+                        D[i][linha].tofile(saida,sep=", ",format='%.5f')
+                        saida.write("; ")
+                    saida.write("\n")
+
             if(DEBUG):
-                print("camada ",i)
-                print(D[i])
-            
-        J_rede=J_rede/n
-        S_total=(reg_lambda/(2*n))*S_total
-        custo_ant=custo
-        custo=J_rede+S_total
-        ###############
-        #J numerico ######NÃO FUNCIONA
-        epsilon=0.0000010000
-        #gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n, reg_lambda)
-        ###############
-        if(DEBUG): print("-> Custo regularizado J+S: ",custo)
-        if(IMPRIME_J):
-                #print(J_rede)
-                arq_J.write("{:.5f}\n".format(custo))
+                print("\n-> Pesos/thetas atualizados\n",theta,"\n Informações no arquivo saida_backprop_rede_"+str(estrutura_rede)+".txt")
 
-
-        for i in range(num_camadas-1):#atualiza pesos
-            theta[i]=theta[i]-alfa*D[i]
-            if(DEBUG):
-                #for linha in range(len(theta[i])):
-                #    theta[i][linha].tofile(saida,sep=", ",format='%.5f')
-                #    saida.write("; ")
-                #saida.write("/")
-                for linha in range(len(D[i])):
-                    D[i][linha].tofile(saida,sep=", ",format='%.5f')
-                    saida.write("; ")
-                saida.write("\n")
-
-        if(DEBUG):
-            print("\n-> Pesos/thetas atualizados\n",theta,"\n Informações no arquivo saida_backprop_rede_"+str(estrutura_rede)+".txt")
-
+        custo_medio_ant = custo_medio
+        custo_medio =  np.average(custo_batch)
+        #print(custo_medio, custo_medio_ant, abs(custo_medio-custo_medio_ant))
         interacoes=interacoes+1
         if(EXECUTA_UMA_VEZ): break
     

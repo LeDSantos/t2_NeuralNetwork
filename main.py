@@ -34,9 +34,8 @@ def treina_e_testa(args):
         entradas=np.delete(matrix_treino[i], target_coluna, 1)
 
         saida=matrix_treino[i,target_coluna]
-        lista_saidas=[]#cria uma lista com as classes de saida possíveis
-        for j in range(config_rede[-1]):
-            lista_saidas.append(0.0)        
+        lista_saidas=[0.0]*config_rede[-1]    #cria uma lista com as classes de saida possíveis
+
         lista_saidas[int(saida*(config_rede[-1]-1))]=1.0#coloca 1 na classe esperada
 
         treino_organizado.append([ np.array(entradas), np.array(lista_saidas)])
