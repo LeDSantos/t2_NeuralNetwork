@@ -19,7 +19,10 @@ dataset["vinho"] = {\
 
 #def treina_e_testa(treino, teste, target_coluna, n_arvores):
 def treina_e_testa(args):
-    treino , teste, target_coluna, config_rede, alfa, reg_lambda, estrutura_rede, K  = args
+
+    random.seed(10)
+    np.random.seed(10)
+    treino , teste, target_coluna, config_rede, alfa, reg_lambda, estrutura_rede, batch_size, K  = args
 
     #INICIANDO THETAS COM VALORES ALEATÓRIOS
     theta=[]
@@ -49,7 +52,7 @@ def treina_e_testa(args):
         teste_organizado.append([ np.array(entradas), matrix_teste[i,target_coluna]])
 
     if(DEBUG): print("NO BACK")
-    theta_modelo, custoJ_S = bp.backpropagation(treino_organizado,theta,alfa,0,reg_lambda, estrutura_rede, K, 0) #TEM Q ARRUMAR FlorestaAleatoria(treino, target_coluna, n_arvores); #parametro n_arvores
+    theta_modelo, custoJ_S = bp.backpropagation(treino_organizado,theta,alfa,0,reg_lambda, estrutura_rede, K, 0, batch_size) #TEM Q ARRUMAR FlorestaAleatoria(treino, target_coluna, n_arvores); #parametro n_arvores
     if(DEBUG): print("novo theta\n",theta_modelo)
     
     #np.delete(np.matrix(treino.to_numpy()), -1, 1)
@@ -82,7 +85,7 @@ def treina_e_testa(args):
     return table_of_confusion
 
 
-def cross_validation(df, target, config_rede, K, alfa, reg_lambda, estrutura_rede):
+def cross_validation(df, target, config_rede, K, alfa, reg_lambda, estrutura_rede, batch_size):
     target_classes = df[target].value_counts() # TODO: unused var
     #dividir o dataset nas classes do atributo alvo
     df_list= []
@@ -128,9 +131,9 @@ def cross_validation(df, target, config_rede, K, alfa, reg_lambda, estrutura_red
         test[i] = fold_list[i].copy()
 
     #roda os treinos em paralelo
-    with Pool(processes=5) as pool:
+    with Pool(processes=4) as pool:
         #encapsula os argumentos
-        arg_list = (zip(train, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K, [estrutura_rede]*K, range(0,K)))#[]*K é para ir uma copia igual para cada processo
+        arg_list = (zip(train, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K, [estrutura_rede]*K, [batch_size]*K, range(0,K)))#[]*K é para ir uma copia igual para cada processo
         result_list = pool.map(treina_e_testa, arg_list)
 
 #    print(result_list)
@@ -201,13 +204,15 @@ def main():
     if(DEBUG): print(df_train)
 
     neuros_iniciais=len(df_train.dtypes)-1
-    neuros_ocultos=[[10],[10]]#,[5],[5],[10, 5],[10, 5]]#DEFINE AS REDES Q SERÃO TREINADAS
+    neuros_ocultos=[[32,32]]*9 #DEFINE AS REDES Q SERÃO TREINADAS
     neuros_saida=len(df_train[target_attribute].unique())
 
-    alfa=[0.8, 0.8]#, 0.8, 0.8, 0.8, 0.8]
-    reg_lambda=[0.25, 0.5]#, 0.25, 0.5, 0.25, 0.5]#para regularização
+    alfa=[0.01, 0.03, 0.1, 0.3, 0.5, 0.8, 1, 1.5, 2]
+    alfa.sort(reverse=True)
+    reg_lambda= [0.01]*9 #[0, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10]#, 0.25, 0.5, 0.25, 0.5]#para regularização
+    batch_size= [None]*9
 
-    print("Rede; Alfa; Reg_lambda; Acuracia; desvio_padrao; tempo_exe")
+    print("Rede; Alfa; Reg_lambda; batch_size, Acuracia; desvio_padrao; tempo_exe")
     for i in range(len(neuros_ocultos)):
         #ORGANIZAÇÃO DA REDE
         neunos_por_camada=[neuros_iniciais]#neuros iniciais
@@ -220,11 +225,11 @@ def main():
         #TESTE MESMO
         ini = time.time()
         config_rede = neunos_por_camada
-        n, acc, stdev = cross_validation(df_train, target_attribute, config_rede, 10, alfa[i], reg_lambda[i], neunos_por_camada)
+        n, acc, stdev = cross_validation(df_train, target_attribute, config_rede, 4, alfa[i], reg_lambda[i], neunos_por_camada, batch_size[i])
         fim = time.time()
         #print("Rede; Acuracia; desvio_padrao; tempo_exe")
         if(DEBUG): print("Rede; Alfa; Reg_lambda; Acuracia; desvio_padrao; tempo_exe")
-        print("{}; {:.5f}; {:.5f}; {:.5f}; {:.5f}; {:.5f}".format(n, alfa[i], reg_lambda[i], acc, stdev, fim-ini))
+        print("{}; {:.5f}; {:.5f}; {}; {:.5f}; {:.5f}; {:.5f}".format(n, alfa[i], reg_lambda[i], batch_size[i], acc, stdev, fim-ini))
 
     return
 
