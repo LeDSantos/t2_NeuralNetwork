@@ -283,7 +283,7 @@ def main(args):
 
     J_rede=0.0#erro da rede
     #CHAMA O BACK
-    theta_atualizado, J_rede = backpropagation(treino, theta_original, alfa, J_rede, reg_lambda, neunos_por_camada,0,1)
+    theta_atualizado, J_rede = backpropagation(treino, theta_original, alfa, J_rede, reg_lambda, neunos_por_camada,0,1, None)
 
     fim=time.time()
     print("\n\nTEMPO DE EXECUÇÃO: ",fim-inicio)
