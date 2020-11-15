@@ -102,8 +102,10 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
     custo_medio_list = []
     custo_medio_ant =10
     mini_batch_list = list(chunk(treino, batch_size))
+    variancia = 10
 
-    while abs(custo_medio - custo_medio_ant) > 0.0001 and interacoes<500:#repete o back até 500 vezes
+#    while abs(custo_medio - custo_medio_ant) > 0.0001 and interacoes<500:#repete o back até 500 vezes
+    while (interacoes < 2 or (variancia > 0.001 or abs(custo_medio - custo_medio_ant) > 0.00005)  ) and interacoes<1000:#repete o back até 500 vezes
         if(DEBUG): print(interacoes)
         #batch_treino = treino[0:batch_size]
         custo_batch = []
@@ -208,7 +210,8 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
 
         custo_medio_ant = custo_medio
         custo_medio_list.append(np.average(custo_batch))
-        custo_medio =  np.average(custo_medio_list[-4:])
+        custo_medio =  np.average(custo_medio_list[-8:])
+        variancia = np.var(custo_medio_list[-8:])
         if(IMPRIME_J):
             #print(J_rede)
             with open(nome_arq, "a") as arq_j:
