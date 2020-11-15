@@ -9,7 +9,7 @@ from random import shuffle
 from datetime import datetime
 
 DEBUG=0
-IMPRIME_J=0
+IMPRIME_J=1
 SUB_DIR= "" #"ajuste_alpha/"
 
 def fun_g(x):

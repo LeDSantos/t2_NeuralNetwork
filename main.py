@@ -204,13 +204,13 @@ def main():
     if(DEBUG): print(df_train)
 
     neuros_iniciais=len(df_train.dtypes)-1
-    neuros_ocultos=[[5], [10], [15], [5, 5], [10, 10], [15, 15], [5, 5, 5], [10, 10, 10], [15, 15, 15]] #DEFINE AS REDES Q SERÃO TREINADAS
+    neuros_ocultos=[[10, 10]] #DEFINE AS REDES Q SERÃO TREINADAS
     neuros_saida=len(df_train[target_attribute].unique())
 
-    alfa=[0.8]*9#[0.01, 0.03, 0.1, 0.3, 0.5, 0.8, 1, 1.5, 2]
+    alfa=[0.8]#[0.01, 0.03, 0.1, 0.3, 0.5, 0.8, 1, 1.5, 2]
     #alfa.sort(reverse=True)
-    reg_lambda= [0.025]*9 #[0, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10]#, 0.25, 0.5, 0.25, 0.5]#para regularização
-    batch_size= [None]*9
+    reg_lambda= [0.025] #[0, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10]#, 0.25, 0.5, 0.25, 0.5]#para regularização
+    batch_size= [50]
 
     print("Rede; Alfa; Reg_lambda; batch_size, Acuracia; desvio_padrao; tempo_exe")
     for i in range(len(neuros_ocultos)):
