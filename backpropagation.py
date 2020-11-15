@@ -9,7 +9,7 @@ from random import shuffle
 from datetime import datetime
 
 DEBUG=0
-IMPRIME_J=1
+IMPRIME_J=0
 SUB_DIR= "" #"ajuste_alpha/"
 
 def fun_g(x):
@@ -103,7 +103,7 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
     custo_medio_ant =10
     mini_batch_list = list(chunk(treino, batch_size))
 
-    while abs(custo_medio - custo_medio_ant) > 0.00001 and interacoes<6000:#repete o back até 500 vezes
+    while abs(custo_medio - custo_medio_ant) > 0.001 and interacoes<500:#repete o back até 500 vezes
         if(DEBUG): print(interacoes)
         #batch_treino = treino[0:batch_size]
         custo_batch = []
