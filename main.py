@@ -6,8 +6,12 @@ import numpy as np
 from multiprocessing import Pool
 import time
 import backpropagation as bp
+from random import shuffle
 
 DEBUG=0
+MODO_AUMENTA_TREINO = 1
+arq_modo_treino="MODO_AUMENTA_TREINO.tsv"
+
 
 dataset = {}
 dataset["votos"] = {\
@@ -130,24 +134,77 @@ def cross_validation(df, target, config_rede, K, alfa, reg_lambda, batch_size):
         train[i] = pd.concat(fold_list[:i] + fold_list[i+1:], axis=0).copy()
         test[i] = fold_list[i].copy()
 
-    #roda os treinos em paralelo
-    with Pool(processes=4) as pool:
-        #encapsula os argumentos
-        arg_list = (zip(train, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K, [batch_size]*K, range(0,K)))#[]*K é para ir uma copia igual para cada processo
-        result_list = pool.map(treina_e_testa, arg_list)
 
-#    print(result_list)
+    #itera sobre o tamanho dos dados de treino
+    if MODO_AUMENTA_TREINO == 0: 
+        #execucao padrao
 
-    #calculo das metricas
-    acc = [None]*len(result_list)
-    for i in range (len(result_list)):
-        total = result_list[i]['CERTO'] + result_list[i]['ERRADO']
-        acc[i] = result_list[i]['CERTO']/total
+        #roda os treinos em paralelo
+        with Pool(processes=4) as pool:
+            #encapsula os argumentos
+            arg_list = (zip(train, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K, [batch_size]*K, range(0,K)))#[]*K é para ir uma copia igual para cada processo
+            result_list = pool.map(treina_e_testa, arg_list)
 
-    acuracia_media = np.average(acc)
-    desvio_padrao = np.std(acc)
+    #    print(result_list)
 
-    return config_rede, acuracia_media, desvio_padrao
+        #calculo das metricas
+        acc = [None]*len(result_list)
+        for i in range (len(result_list)):
+            total = result_list[i]['CERTO'] + result_list[i]['ERRADO']
+            acc[i] = result_list[i]['CERTO']/total
+
+        acuracia_media = np.average(acc)
+        desvio_padrao = np.std(acc)
+
+        return config_rede, acuracia_media, desvio_padrao
+    
+    else:
+        #MODO QUE INCREMENTA O TAMANHO DO TESTE COM O OBJETIVO DE PLOTAR ACURACIA x TAMANHO DE TESTE
+
+        for i in range(K):
+        #dispersa as classes agrupadas pelo processo de estratificacao de folds
+            train[i] = train[i].sample(frac=1)
+
+
+        sub_train_result_list=[]
+        with open(arq_modo_treino, 'a') as f:
+            f.write("{}; {}; {}\n".format("train_size","accuracy","stddev"))
+
+        for n_treino in range(5, len(train[0]), 5): 
+
+            sub_treino= []
+            for i in range(K):
+                sub_treino.append(train[i].head(n_treino).copy())
+
+
+            #roda os treinos em paralelo
+            with Pool(processes=4) as pool:
+                #encapsula os argumentos
+                arg_list = (zip(sub_treino, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K, [batch_size]*K, range(0,K)))#[]*K é para ir uma copia igual para cada processo
+                result_list = pool.map(treina_e_testa, arg_list)
+
+        #    print(result_list)
+
+            #calculo das metricas
+            acc = [None]*len(result_list)
+            for i in range (len(result_list)):
+                total = result_list[i]['CERTO'] + result_list[i]['ERRADO']
+                acc[i] = result_list[i]['CERTO']/total
+
+            acuracia_media = np.average(acc)
+            desvio_padrao = np.std(acc)
+            sub_train_result_list.append((n_treino, acuracia_media, desvio_padrao) )
+            with open(arq_modo_treino, 'a') as f:
+                f.write("{}; {:.6f}; {:.6f}\n".format(n_treino, acuracia_media, desvio_padrao))
+
+#        print("{}; {}; {}".format("test_size","accuracy","stddev"))
+#        for t, a, s in sub_train_result_list:
+#            print("{}; {}; {}".format(t, a, s))
+        
+
+        return config_rede, acuracia_media, desvio_padrao
+
+
 
 
 def main():
@@ -204,13 +261,15 @@ def main():
     if(DEBUG): print(df_train)
 
     neuros_iniciais=len(df_train.dtypes)-1
-    neuros_ocultos=[[5]] #DEFINE AS REDES Q SERÃO TREINADAS
+    neuros_ocultos=[[10,10]] #DEFINE AS REDES Q SERÃO TREINADAS
+    #neuros_ocultos=[[5],[10],[15],[5,5],[10,10],[15,15],[5,5,5],[10,10,10],[15,15,15]]
     neuros_saida=len(df_train[target_attribute].unique())
 
-    alfa=[.8]#[0.01, 0.03, 0.1, 0.3, 0.5, 0.8, 1, 1.5, 2]
+    alfa=[0.95] #[0.01, 0.03, 0.1, 0.3, 0.5, 0.8, 1, 1.5, 2]
     #alfa.sort(reverse=True)
-    reg_lambda= [.175] #[0, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10]#, 0.25, 0.5, 0.25, 0.5]#para regularização
+    reg_lambda= [0.175] #[0, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 5, 10]#, 0.25, 0.5, 0.25, 0.5]#para regularização
     batch_size= [None]
+    #batch_size = [None,8,16,32,64]
 
     print("Rede; Alfa; Reg_lambda; batch_size, Acuracia; desvio_padrao; tempo_exe")
     for i in range(len(neuros_ocultos)):

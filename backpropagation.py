@@ -9,8 +9,8 @@ from random import shuffle
 from datetime import datetime
 
 DEBUG=0
-IMPRIME_J=1
-SUB_DIR= "" #"ajuste_alpha/"
+IMPRIME_J=0
+SUB_DIR= "" #"test_size_plot/" #"ajuste_alpha/"
 
 def fun_g(x):
     '''Função sigmoide: transforma qualquer número real em um número no intervalo (0,1)'''
