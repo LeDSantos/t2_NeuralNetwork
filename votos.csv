@@ -1,81 +1,46 @@
 Rede; Alfa; Reg_lambda; batch_size, Acuracia; desvio_padrao; tempo_exe
-Fold 1 : 162  interações para convergir
-Fold 3 : 166  interações para convergir
-Fold 2 : 167  interações para convergir
-Fold 0 : 170  interações para convergir
-[16, 5, 2]; 0,80000; 0,02500; None; 0,93561; 0,00935; 30,38458
-Fold 1 : 150  interações para convergir
-Fold 0 : 160  interações para convergir
-Fold 2 : 158  interações para convergir
-Fold 3 : 161  interações para convergir
-[16, 10, 2]; 0,80000; 0,02500; None; 0,93327; 0,02013; 30,40476
-Fold 1 : 121  interações para convergir
-Fold 0 : 118  interações para convergir
-Fold 3 : 125  interações para convergir
-Fold 2 : 123  interações para convergir
-[16, 15, 2]; 0,80000; 0,02500; None; 0,94020; 0,01537; 22,15730
-Fold 2 : 186  interações para convergir
-Fold 3 : 182  interações para convergir
-Fold 1 : 182  interações para convergir
-Fold 0 : 186  interações para convergir
-[16, 5, 5, 2]; 0,80000; 0,02500; None; 0,94018; 0,01681; 39,73405
-Fold 2 : 173  interações para convergir
-Fold 0 : 173  interações para convergir
-Fold 1 : 176  interações para convergir
-Fold 3 : 178  interações para convergir
-[16, 10, 10, 2]; 0,80000; 0,02500; None; 0,95171; 0,01364; 37,81549
-Fold 2 : 73  interações para convergir
-Fold 0 : 95  interações para convergir
-Fold 1 : 118  interações para convergir
-Fold 3 : 143  interações para convergir
-[16, 15, 15, 2]; 0,80000; 0,02500; None; 0,93790; 0,01208; 28,27962
-Fold 2 : 161  interações para convergir
-Fold 1 : 170  interações para convergir
-Fold 3 : 182  interações para convergir
-Fold 0 : 214  interações para convergir
-[16, 5, 5, 5, 2]; 0,80000; 0,02500; None; 0,94476; 0,01973; 57,16184
-Fold 2 : 160  interações para convergir
-Fold 0 : 173  interações para convergir
-Fold 1 : 169  interações para convergir
-Fold 3 : 176  interações para convergir
-[16, 10, 10, 10, 2]; 0,80000; 0,02500; None; 0,93561; 0,00673; 47,43915
-Fold 0 : 94  interações para convergir
-Fold 2 : 100  interações para convergir
-Fold 3 : 124  interações para convergir
-Fold 1 : 185  interações para convergir
-[16, 15, 15, 15, 2]; 0,80000; 0,02500; None; 0,93790; 0,01650; 46,38561
-
-Rede; Alfa; Reg_lambda; batch_size, Acuracia; desvio_padrao; tempo_exe
-Fold 2 : 173  interações para convergir
-Fold 0 : 173  interações para convergir
-Fold 1 : 176  interações para convergir
-Fold 3 : 178  interações para convergir
-[16, 10, 10, 2]; 0.80000; 0.02500; None; 0.95171; 0.01364; 37.49246
-Fold 3 : 15  interações para convergir
-Fold 0 : 48  interações para convergir
-Fold 1 : 92  interações para convergir
-Fold 2 : 135  interações para convergir
-[16, 10, 10, 2]; 0.80000; 0.02500; 25; 0.93559; 0.01155; 26.94450
-Fold 3 : 26  interações para convergir
-Fold 0 : 30  interações para convergir
-Fold 1 : 30  interações para convergir
-Fold 2 : 53  interações para convergir
-[16, 10, 10, 2]; 0.80000; 0.02500; 50; 0.94478; 0.01472; 12.00780
-Fold 0 : 20  interações para convergir
-Fold 3 : 35  interações para convergir
-Fold 1 : 44  interações para convergir
-Fold 2 : 60  interações para convergir
-[16, 10, 10, 2]; 0.80000; 0.02500; 75; 0.92873; 0.01988; 12.96904
-Fold 0 : 26  interações para convergir
-Fold 2 : 54  interações para convergir
-Fold 1 : 54  interações para convergir
-Fold 3 : 79  interações para convergir
-[16, 10, 10, 2]; 0.80000; 0.02500; 100; 0.93565; 0.02046; 16.72468
-
-J de cada exemplo treinado em custoJrede_15_11_2020_01_54_02_0.8_0.025_50_[16, 10, 10, 2]foldX.csv
-Rede; Alfa; Reg_lambda; batch_size, Acuracia; desvio_padrao; tempo_exe
-Fold 3 : 26  interações para convergir
-Fold 1 : 30  interações para convergir
-Fold 0 : 30  interações para convergir
-Fold 2 : 53  interações para convergir
-[16, 10, 10, 2]; 0.80000; 0.02500; 50; 0.94478; 0.01472; 10.94728
+Fold 0 : 538  interações para convergir
+Fold 2 : 585  interações para convergir
+Fold 3 : 582  interações para convergir
+Fold 1 : 750  interações para convergir
+[16, 5, 2]; 0.80000; 0.17500; None; 0.94939; 0.01046; 107.56068
+Fold 3 : 700  interações para convergir
+Fold 2 : 747  interações para convergir
+Fold 0 : 762  interações para convergir
+Fold 1 : 815  interações para convergir
+[16, 10, 2]; 0.80000; 0.17500; None; 0.94478; 0.01322; 119.86237
+Fold 3 : 652  interações para convergir
+Fold 0 : 798  interações para convergir
+Fold 2 : 810  interações para convergir
+Fold 1 : 857  interações para convergir
+[16, 15, 2]; 0.80000; 0.17500; None; 0.94478; 0.01151; 127.81389
+Fold 2 : 247  interações para convergir
+Fold 0 : 332  interações para convergir
+Fold 1 : 338  interações para convergir
+Fold 3 : 588  interações para convergir
+[16, 5, 5, 2]; 0.80000; 0.17500; None; 0.95169; 0.01653; 113.60626
+Fold 3 : 281  interações para convergir
+Fold 0 : 426  interações para convergir
+Fold 2 : 449  interações para convergir
+Fold 1 : 485  interações para convergir
+[16, 10, 10, 2]; 0.80000; 0.17500; None; 0.94937; 0.01912; 105.67501
+Fold 2 : 116  interações para convergir
+Fold 3 : 259  interações para convergir
+Fold 0 : 357  interações para convergir
+Fold 1 : 427  interações para convergir
+[16, 15, 15, 2]; 0.80000; 0.17500; None; 0.94708; 0.01659; 91.39032
+Fold 1 : 278  interações para convergir
+Fold 3 : 537  interações para convergir
+Fold 0 : 610  interações para convergir
+Fold 2 : 617  interações para convergir
+[16, 5, 5, 5, 2]; 0.80000; 0.17500; None; 0.94710; 0.01017; 154.15347
+Fold 1 : 284  interações para convergir
+Fold 0 : 323  interações para convergir
+Fold 3 : 322  interações para convergir
+Fold 2 : 522  interações para convergir
+[16, 10, 10, 10, 2]; 0.80000; 0.17500; None; 0.94249; 0.01377; 132.93952
+Fold 0 : 164  interações para convergir
+Fold 3 : 454  interações para convergir
+Fold 1 : 828  interações para convergir
+Fold 2 : 1000  interações para convergir
+[16, 15, 15, 15, 2]; 0.80000; 0.17500; None; 0.94249; 0.01655; 232.06693

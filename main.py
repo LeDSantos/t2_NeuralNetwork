@@ -9,7 +9,7 @@ import backpropagation as bp
 from random import shuffle
 
 DEBUG=0
-MODO_AUMENTA_TREINO = 1
+MODO_AUMENTA_TREINO = 0
 arq_modo_treino="MODO_AUMENTA_TREINO.tsv"
 
 

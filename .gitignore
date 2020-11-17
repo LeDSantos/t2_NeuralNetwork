@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 #IGNORAR
-/saida_*.txt
-/custoJrede_*.txt
+/*.txt
+/*.csv
