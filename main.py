@@ -21,7 +21,6 @@ dataset["vinho"] = {\
     "data":  ('wine-recognition.tsv','\t'), \
     "types": ('wine-recognition_types.csv', ';')}
 
-#def treina_e_testa(treino, teste, target_coluna, n_arvores):
 def treina_e_testa(args):
 
     random.seed(10)
@@ -56,10 +55,9 @@ def treina_e_testa(args):
         teste_organizado.append([ np.array(entradas), matrix_teste[i,target_coluna]])
 
     if(DEBUG): print("NO BACK")
-    theta_modelo, custoJ_S = bp.backpropagation(treino_organizado,theta,alfa,reg_lambda, config_rede, K, 0, batch_size) #TEM Q ARRUMAR FlorestaAleatoria(treino, target_coluna, n_arvores); #parametro n_arvores
+    theta_modelo, custoJ_S = bp.backpropagation(treino_organizado,theta,alfa,reg_lambda, config_rede, K, 0, batch_size)
     if(DEBUG): print("novo theta\n",theta_modelo)
     
-    #np.delete(np.matrix(treino.to_numpy()), -1, 1)
     key_list = list(treino.columns)
     target_name= key_list[target_coluna]
 
@@ -73,7 +71,6 @@ def treina_e_testa(args):
         nrow += 1
         #print("EXEMPLO: ",test_row)
         if(DEBUG): print("RESPOSTA DO PREDICT: ",resp)
-        #result = numpy.where(arr == numpy.amax(arr))
         localizado=np.where(resp == np.max(resp))
         predito=localizado[1][0]
         if(DEBUG): print("maior em ",predito)
@@ -97,11 +94,8 @@ def cross_validation(df, target, config_rede, K, alfa, reg_lambda, batch_size):
     for name, df in df.groupby(target):
         df_list.append(df)
 
-#    print("numero de instancias por classe: ", [len(x) for x in df_list])
     #tamanho de cada fold para negativos e positivos
     fold_size_per_target = list(map(lambda x: round(len(x.index)/K), df_list))
-
-#    print(fold_size_per_target)
 
     #divide em K folds
     fold_list_per_target=[]
@@ -121,8 +115,6 @@ def cross_validation(df, target, config_rede, K, alfa, reg_lambda, batch_size):
     fold_list= []
     for fold in zip(*fold_list_per_target):
         fold_list.append(pd.concat(list(fold), axis=0))
-
-#    print(fold_list)
 
     target_coluna = list(df.columns).index(target)
 
@@ -144,8 +136,6 @@ def cross_validation(df, target, config_rede, K, alfa, reg_lambda, batch_size):
             #encapsula os argumentos
             arg_list = (zip(train, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K, [batch_size]*K, range(0,K)))#[]*K é para ir uma copia igual para cada processo
             result_list = pool.map(treina_e_testa, arg_list)
-
-    #    print(result_list)
 
         #calculo das metricas
         acc = [None]*len(result_list)
@@ -183,8 +173,6 @@ def cross_validation(df, target, config_rede, K, alfa, reg_lambda, batch_size):
                 arg_list = (zip(sub_treino, test, [target_coluna]*K, [config_rede]*K, [alfa]*K, [reg_lambda]*K, [batch_size]*K, range(0,K)))#[]*K é para ir uma copia igual para cada processo
                 result_list = pool.map(treina_e_testa, arg_list)
 
-        #    print(result_list)
-
             #calculo das metricas
             acc = [None]*len(result_list)
             for i in range (len(result_list)):
@@ -197,27 +185,12 @@ def cross_validation(df, target, config_rede, K, alfa, reg_lambda, batch_size):
             with open(arq_modo_treino, 'a') as f:
                 f.write("{}; {:.6f}; {:.6f}\n".format(n_treino, acuracia_media, desvio_padrao))
 
-#        print("{}; {}; {}".format("test_size","accuracy","stddev"))
-#        for t, a, s in sub_train_result_list:
-#            print("{}; {}; {}".format(t, a, s))
-        
-
         return config_rede, acuracia_media, desvio_padrao
-
-
 
 
 def main():
     '''
-    PARA RODAR O BACK COM OS DATASETS GRANDES:
-    precisa processar os arquivos de entrada com panda para extrair:
-    treino
-
-    Definir a estrutura(quantas camadas e quantos neuronios por camada)
-    DE ACORDO COM O TAMANHO DA ESTRUTURA(+ BIAS): theta inicia com valores aleatórios
-    reg_lambda a gente define;
-    alfa(taxa de aprendizado) a gente define;
-    J_rede inicia com 0
+    PROGRAMA PRINCIPAL
     '''
     random.seed(10)
     np.random.seed(10)

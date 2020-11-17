@@ -43,12 +43,11 @@ def predict(x, theta):
     previsto=np.delete(a_list[-1], 0, 1)#deleta a primeira(0) coluna(1) do bias
     return previsto
 
-
 def chunk(seq, size):
     return (seq[pos:pos + size] for pos in range(0, len(seq), size))
 
 def str_date_time():
-    # datetime object containing current date and time
+    '''datetime object containing current date and time'''
     now = datetime.now()
     dt_string = now.strftime("_%d_%m_%Y_%H_%M_%S")
     return dt_string
@@ -86,17 +85,13 @@ def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_
 
     if (IMPRIME_J):
         nome_arq= SUB_DIR+"custoJrede"+str_date_time()+"_"+str(alfa)+"_"+str(reg_lambda)+"_"+str(batch_size)+"_"+str(estrutura_rede)+"fold"+str(K)+".txt"
-        #print(nome_arq)
-        #arq_J=open(nome_arq,"w")
 
     if(DEBUG):
         saida = open("saida_backprop_rede_"+str(estrutura_rede)+".txt", 'w')
-        #saida.write("Pesos / Gradiente\n")
 
     shuffle(treino)
 
     custo=0
-    #custo_ant=10
     interacoes=0
     custo_medio =0
     custo_medio_list = []
@@ -104,7 +99,6 @@ def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_
     mini_batch_list = list(chunk(treino, batch_size))
     variancia = 10
 
-#    while abs(custo_medio - custo_medio_ant) > 0.0001 and interacoes<500:#repete o back até 500 vezes
     while (interacoes < 2 or (variancia > 0.001 or abs(custo_medio - custo_medio_ant) > 0.00005)  ) and interacoes<1000:#repete o back até 500 vezes
         if(DEBUG): print(interacoes)
         #batch_treino = treino[0:batch_size]
@@ -123,13 +117,6 @@ def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_
 
                 J_exemplo = np.sum(-np.multiply( esperado,     np.log(previsto))
                                    -np.multiply( (1-esperado), np.log(1-previsto)))
-                #J_exemplo = np.sum(-np.array(esperado.tolist())*np.array(np.log(previsto).tolist())-np.array((1-esperado).tolist())*np.array(np.log(1-previsto).tolist()))
-                #'''
-                #Essa gambiarra toda é para fazer a multiplicação elemento por elemento:
-                #J(i) = sum( -y(i) .* log(fθ(x(i))) - (1-y(i)) .* log(1 - fθ(x(i))))
-                #(PODE TER UMA FORMA MAIS FÁCIL DE FAZER, MAS O IMPORTANTE É QUE ESSA FUNCIONA)
-                #Ou seja: A.*B -> np.array(A.tolist())*np.array(B.tolist())
-                #'''
 
                 if(DEBUG): print("-->>>>>J: ",J_exemplo)  
                 J_rede = J_rede + J_exemplo    
@@ -141,10 +128,8 @@ def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_
                     print("-> Deltas")
                 for i in range(num_camadas-2,0,-1):#delta da penultima camada até a segunda
                     if(DEBUG): print("camada ",i)
-                    x=(np.transpose(theta[i])*np.transpose(delta[0]))
-                    #a_mod = np.array(a_list[i].tolist())*np.array((1-a_list[i]).tolist())#multiplicação por elemento
-                    a_mod = np.multiply(a_list[i], 1-a_list[i])
-                    #x1 = np.array(np.transpose(x))*np.array(a_mod.tolist())#multiplicação por elemento
+                    x=(np.transpose(theta[i])*np.transpose(delta[0]))#multiplicação por elemento
+                    a_mod = np.multiply(a_list[i], 1-a_list[i])#multiplicação por elemento
                     x = np.multiply(np.transpose(x), a_mod)#multiplicação por elemento
 
                     x = np.matrix(x)
@@ -178,24 +163,15 @@ def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_
                 
             J_rede = J_rede/n
             S_total = (reg_lambda/(2*n))*S_total
-            #custo_ant = custo
             custo = J_rede+S_total
 
             custo_batch.append(custo)
 
             if(DEBUG): print("-> Custo regularizado J+S: ",custo)
-            #if(IMPRIME_J):
-            #        #print(J_rede)
-            #        arq_J.write("{:.5f}\n".format(custo))
-
 
             for i in range(num_camadas-1):#atualiza pesos
                 theta[i]=theta[i]-alfa*D[i]
                 if(DEBUG):
-                    #for linha in range(len(theta[i])):
-                    #    theta[i][linha].tofile(saida,sep=", ",format='%.5f')
-                    #    saida.write("; ")
-                    #saida.write("/")
                     for linha in range(len(D[i])):
                         D[i][linha].tofile(saida,sep=", ",format='%.5f')
                         saida.write("; ")
@@ -213,7 +189,6 @@ def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_
             with open(nome_arq, "a") as arq_j:
                 arq_j.write("{:.6f}\n".format(custo_medio_list[-1]))
 
-        #print(custo_medio, custo_medio_ant, abs(custo_medio-custo_medio_ant))
         interacoes += 1
         if(EXECUTA_UMA_VEZ): break
     
@@ -221,7 +196,6 @@ def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_
         saida.write("reg_lambda: "+ str(reg_lambda))
         saida.close()
     
-    #if(IMPRIME_J):  arq_J.close()
     print("Fold",K,":",interacoes," interações para convergir")
     return theta, custo
 
