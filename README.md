@@ -2,23 +2,32 @@
 Redes Neurais - Backpropagation - Trabalho 2 de Aprendizado de Máquina\
 Objetivo: implementação de uma rede neural treinada via backpropagation.
 
-## Executar rede
-python3 main.py\
-python3 main.py vinho \
-python3 main.py votos
-- Rede, Alfa, Reg_lambda, Acuracia, desvio_padrao e tempo_exe para cada configuração de rede impressos no terminal.
-- **SE IMPRIME_J(em backpropagation.py)==1:** J de cada exemplo treinado em **custoJrede_[estrutura da rede]foldK.txt**
+Implementação foi realizada utilizando linguagem de programação python. Para se manipular o dataset se usou a biblioteca pandas.
 
-## Executar verificação do backpropagation
-python3 backpropagation.py networkEXP1.txt initial_weightsEXP1.txt datasetEXP1.txt\
-python3 backpropagation.py networkEXP2.txt initial_weightsEXP2.txt datasetEXP2.txt\
-python3 backpropagation.py networkEXP2mod.txt initial_weightsEXP2mod.txt datasetEXP2mod.txt
-- Detalhes do funcionamento impressos no terminal.
-- Pesos, gradiente e fator de regularização lambda em: **saida_backprop_rede_[estrutura da rede].txt** 
+## Execução do programa:
 
-## Executar gradiente numérico
-python3 gradiente_numerico.py networkEXP1.txt initial_weightsEXP1.txt datasetEXP1.txt\
-python3 gradiente_numerico.py networkEXP2.txt initial_weightsEXP2.txt datasetEXP2.txt\
-python3 gradiente_numerico.py networkEXP2mod.txt initial_weightsEXP2mod.txt datasetEXP2mod.txt
-- Detalhes do funcionamento impressos no terminal.
-- Gradiente e fator de regularização lambda em: **saida_grad_num_rede_[estrutura da rede].txt**
+```prompt
+$ python3 main.py [votos | vinho]
+```
+
+Onde o argumento votos corresponde ao dataset 1984 United States Congressional Voting e vinho corresponde ao Wine Data Set.
+
+O programa gera uma tabela na saída padrão com as informações de:
+
+**Rede; Alfa; Reg_lambda; batch_size; Acuracia; desvio_padrao; tempo_exe**
+
+## Teste do backpropagation:
+
+```prompt
+$ python3 backpropagation.py [networkEXP1.txt initial_weightsEXP1.txt datasetEXP1.txt | networkEXP2.txt initial_weightsEXP2.txt datasetEXP2.txt]
+```
+
+Saída com gradiente e alfa em **saida_backprop_rede_[estrutura da rede].txt**
+
+## Teste do gradiente numérico:
+
+```prompt
+$ python3 gradiente_numerico.py [networkEXP1.txt initial_weightsEXP1.txt datasetEXP1.txt | networkEXP2.txt initial_weightsEXP2.txt datasetEXP2.txt]
+```
+
+Saída com gradiente numérico e alfa em **saida_grad_num_rede_[estrutura da rede].txt**
