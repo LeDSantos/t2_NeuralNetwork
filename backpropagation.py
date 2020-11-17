@@ -54,7 +54,7 @@ def str_date_time():
     return dt_string
 
 
-def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, EXECUTA_UMA_VEZ, batch_size ):
+def backpropagation(treino, theta, alfa, reg_lambda, estrutura_rede, K, EXECUTA_UMA_VEZ, batch_size ):
     '''
     Retorna theta e custo J+S FINAIS.
 
@@ -182,11 +182,7 @@ def backpropagation(treino, theta, alfa, J_rede, reg_lambda, estrutura_rede, K, 
             custo = J_rede+S_total
 
             custo_batch.append(custo)
-            ###############
-            #J numerico ######NÃO FUNCIONA
-            epsilon=0.000001
-            #gradiente_J_numerico(J_rede, theta, num_camadas, epsilon, n, reg_lambda)
-            ###############
+
             if(DEBUG): print("-> Custo regularizado J+S: ",custo)
             #if(IMPRIME_J):
             #        #print(J_rede)
@@ -286,7 +282,7 @@ def main(args):
 
     J_rede=0.0#erro da rede
     #CHAMA O BACK
-    theta_atualizado, J_rede = backpropagation(treino, theta_original, alfa, J_rede, reg_lambda, neunos_por_camada,0,1, None)
+    theta_atualizado, J_rede = backpropagation(treino, theta_original, alfa, reg_lambda, neunos_por_camada,0,1, None)
 
     fim=time.time()
     print("\n\nTEMPO DE EXECUÇÃO: ",fim-inicio)
